@@ -1,0 +1,473 @@
+/* App.css
+rulez cu npm run dev
+*/
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #dfffd6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+}
+
+#root {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #d1d9d1; /* Griul din designul tău */
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.student-table th {
+    background-color: #c4cdc4;
+    padding: 15px;
+    text-align: left;
+}
+
+.student-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #b5bdb5;
+}
+
+.btn-action {
+    background-color: #ffda47;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.active-page {
+    background-color: #ffda47;
+    border: none;
+    font-weight: bold;
+}
+
+.form-container {
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: #dcdcdc;
+    border-radius: 15px;
+    border: 1px solid #7c8b7c;
+}
+
+.form-title {
+    text-align: center;
+    color: #333;
+}
+
+.form-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.form-input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    flex: 1;
+}
+
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-divider {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #bbb;
+    margin: 10px 0;
+}
+
+.form-btn-cancel {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background-color: #e2e2e2;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.form-btn-save {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: #ffda47;
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* MASTER VIEW */
+.master-container { width: 100%; font-family: Arial, sans-serif; }
+.master-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.master-title-box { display: flex; align-items: center; gap: 15px; }
+.master-title-icon { background-color: #dfffd6; border-radius: 50%; padding: 10px 15px; font-size: 40px; }
+.master-title-text { color: #333; margin: 0; }
+.master-controls { display: flex; gap: 15px; align-items: center; }
+.master-tab-group { display: flex; background-color: #d1d9d1; border-radius: 8px; overflow: hidden; cursor: pointer; }
+.master-tab { padding: 8px 15px; border-right: 1px solid #7c8b7c; color: #555; }
+.master-tab.active { background-color: #ffda47; font-weight: bold; color: #333; }
+.master-btn-add, .master-btn-weather { background-color: #ffda47; border: none; padding: 8px 15px; border-radius: 8px; color: #333; font-weight: bold; cursor: pointer; }
+
+/* Tabelul */
+.master-table-container { background-color: #e2e2e2; border-radius: 15px; overflow: hidden; }
+.master-table { width: 100%; border-collapse: collapse; }
+.master-th { cursor: pointer; padding: 15px 30px; color: #555; border-bottom: 2px solid #a3b8a3; }
+.master-th-left { text-align: left; width: 40%; }
+.master-th-center { text-align: center; width: 30%; }
+.master-th-empty { width: 30%; }
+.master-tr { cursor: pointer; }
+.master-td { padding: 12px 30px; border-bottom: 1px solid #a3b8a3; color: #333; font-size: 18px; }
+.master-td-left { text-align: left; }
+.master-td-center { text-align: center; padding: 12px 15px; }
+.master-td-right { text-align: right; }
+.master-index { display: inline-block; width: 30px; }
+.master-emoji-box { padding: 5px 8px; border-radius: 50%; font-size: 20px; }
+.master-emoji-bg { background-color: #fff6c5; }
+.master-table-footer { display: flex; justify-content: space-between; padding: 15px 30px; color: #333; font-size: 16px; }
+
+/* Paginare */
+.master-pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; font-size: 18px; }
+.master-page-nav { cursor: pointer; }
+.master-page-nav.disabled { cursor: not-allowed; color: #aaa; }
+.master-page-nav.active { color: #555; }
+.master-page-btn { border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.master-page-btn.active { background-color: #ffda47; color: #333; }
+.master-page-btn.inactive { background-color: #d1d9d1; color: #333; }
+
+/* Statistici */
+.stats-container { display: flex; justify-content: space-around; align-items: center; margin-top: 40px; }
+.stats-pie-section { display: flex; flex-direction: column; align-items: center; }
+.stats-pie-title { color: #555; margin-bottom: 20px; }
+.stats-pie-chart { width: 250px; height: 250px; border-radius: 50%; position: relative; box-shadow: 0 8px 16px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; }
+.stats-pie-inner { background-color: white; border-radius: 50%; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 20px; }
+.stats-legend { display: flex; gap: 10px; margin-top: 20px; font-size: 12px; font-weight: bold; color: #333; }
+.stats-legend-item { display: flex; align-items: center; gap: 5px; }
+.stats-legend-color { width: 15px; height: 15px; }
+
+.stats-podium-section { display: flex; flex-direction: column; align-items: center; width: 400px; }
+.stats-podium-row { display: flex; align-items: flex-end; justify-content: center; height: 150px; }
+.stats-podium-place { display: flex; flex-direction: column; align-items: center; }
+.stats-podium-number { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+.stats-podium-emoji { background-color: white; border-radius: 50%; padding: 5px; z-index: 1; margin-bottom: -10px; border: 2px solid #ffda47; }
+.stats-podium-block { width: 100px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; }
+.stats-podium-block.first { background-color: #e2e2e2; height: 100px; border-radius: 8px 8px 0 0; }
+.stats-podium-block.second { background-color: #c4cdc4; height: 80px; border-radius: 0 8px 0 0; }
+.stats-podium-block.third { background-color: #d1d9d1; height: 60px; border-radius: 8px 0 0 0; }
+.stats-podium-name { font-size: 10px; color: #333; }
+
+.stats-bar-divider { width: 100%; border: none; border-top: 1px solid #7c8b7c; margin-top: 30px; margin-bottom: 10px; }
+.stats-bar-container { display: flex; align-items: flex-end; gap: 10px; height: 120px; width: 100%; padding: 0 10px; }
+.stats-bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; }
+.stats-bar-fill { width: 15px; border-radius: 3px 3px 0 0; }
+.stats-bar-label { font-size: 10px; margin-top: 5px; color: #333; }
+
+
+/* DETAILED VIEW */
+
+.detail-container { padding: 20px; max-width: 900px; margin: 0 auto; }
+.detail-back-btn { margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; font-size: 18px; color: #555; }
+.detail-card { display: flex; flex-direction: column; background-color: #dcdcdc; border-radius: 10px; border: 1px solid #7c8b7c; overflow: hidden; }
+.detail-header { display: flex; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #7c8b7c; font-size: 20px; color: #555; }
+.detail-body { display: flex; flex-grow: 1; }
+
+/* Stânga - Poza și Emoji */
+.detail-left { width: 35%; padding: 30px 20px; border-right: 1px solid #7c8b7c; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.detail-pic { width: 120px; height: 120px; border-radius: 50%; background-color: #555; color: #ffda47; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 20px; }
+.detail-name { margin: 0 0 10px 0; color: #555; font-size: 22px; }
+.detail-subtitle { color: #555; font-size: 16px; margin-bottom: 5px; }
+.detail-year { color: #555; font-size: 14px; margin-bottom: 30px; }
+.detail-emoji-box { background-color: white; border-radius: 50%; padding: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.detail-emoji { font-size: 40px; background-color: #fff6c5; border-radius: 50%; padding: 10px; display: inline-block; }
+
+/* Dreapta - Informații și Butoane */
+.detail-right { width: 65%; display: flex; flex-direction: column; }
+.detail-info-box { padding: 20px; border-bottom: 1px solid #7c8b7c; }
+.detail-info-row { display: flex; justify-content: space-between; margin-bottom: 20px; text-align: center; }
+.detail-info-row-center { display: flex; justify-content: center; gap: 60px; margin-bottom: 30px; text-align: center; }
+.detail-label { font-weight: bold; color: #333; margin-bottom: 10px; }
+.detail-value { color: #555; }
+.detail-actions { display: flex; justify-content: flex-end; gap: 15px; }
+
+/* Butoane */
+.detail-btn-msg { padding: 10px 20px; border-radius: 8px; border: none; background-color: #e4f0ad; color: #555; cursor: pointer; }
+.detail-btn-edit { padding: 10px 30px; border-radius: 8px; border: none; background-color: #ffda47; color: #333; cursor: pointer; font-weight: bold; }
+.detail-btn-delete { padding: 10px 20px; border-radius: 8px; border: none; background-color: #ff6b6b; color: white; cursor: pointer; font-weight: bold; }
+
+/* Părinți și Footer */
+.detail-parents-box { padding: 20px; flex-grow: 1; }
+.detail-parents-header { display: flex; justify-content: space-between; font-weight: bold; color: #555; font-size: 18px; margin-bottom: 15px; }
+.detail-parent-row { display: flex; justify-content: space-between; color: #555; margin-bottom: 10px; align-items: center; }
+.detail-parent-name { display: flex; align-items: center; gap: 10px; }
+.detail-dot { width: 15px; height: 15px; border-radius: 50%; background-color: #e4f0ad; }
+
+.detail-footer { display: flex; border-top: 1px solid #7c8b7c; }
+.detail-footer-left { width: 35%; padding: 15px; border-right: 1px solid #7c8b7c; text-align: center; background-color: #d1d9d1; display: flex; flex-direction: column; justify-content: center; }
+.detail-footer-right { width: 65%; padding: 20px; display: flex; align-items: center; color: #555; font-size: 16px; }
+
+/* --- MICILE DETALII (Completare pentru Detailed View) --- */
+.detail-back-icon { margin-right: 10px; font-size: 24px; }
+.detail-close-btn { cursor: pointer; font-weight: bold; }
+.detail-footer-label { margin-bottom: 0; }
+.detail-footer-value { margin-top: 10px; font-size: 14px; }
+.detail-mention-label { font-weight: bold; }
+
+/* --- AUTH VIEWS (LOGIN / REGISTER) --- */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.auth-back-btn {
+    margin-bottom: 20px;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-left: 20%;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Am scos cercul alb și am mărit soarele la fel ca pe prima pagină */
+.auth-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+/* Titlul exact ca pe prima pagină */
+.auth-title {
+    font-weight: bold;
+    margin: 10px;
+    color: #333333;
+}
+
+/* Subtitlul exact ca pe prima pagină */
+.auth-subtitle {
+    font-size: 18.72px; /* Dimensiunea standard pentru <h3> */
+    font-style: italic;
+    font-weight: bold;
+    opacity: 0.8;
+    margin: 0 0 30px 0;
+}
+
+.auth-form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Am mărit etichetele (Email, Password etc.) */
+.auth-label {
+    font-size: 15px;
+    font-weight: bold;
+    color: #444;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Scrisul în input acum este negru și un pic mai mare */
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    color: #000000;
+    font-size: 16px;
+}
+
+.auth-btn-submit {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #ffda47;
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+.auth-footer-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333;
+}
+
+.auth-link {
+    color: #d4af37;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.auth-role-group {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
+}
+/* =========================================
+   ✨ COOL ANIMATIONS & TRANSITIONS (GOLD) ✨
+   ========================================= */
+
+/* 1. Efect de Slide Up & Fade In pentru pagini/panouri */
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(40px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-enter {
+    animation: slideUpFade 10s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 2. Efect 3D / Hover super-fin pe rândurile din tabel */
+.master-table tbody tr {
+    transition: all 0.3s ease !important;
+}
+
+.master-table tbody tr:hover {
+    transform: scale(1.02) translateX(10px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    background-color: dodgerblue !important; /* Un verde-gălbui foarte pal */
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+
+/* 3. Buton cu puls luminos pentru "Call to Action" (+ New Student) */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 218, 71, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(255, 218, 71, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 218, 71, 0); }
+}
+
+.btn-pulse {
+    animation: pulseGlow 2s infinite;
+    transition: transform 2s ease;
+}
+
+.btn-pulse:hover {
+    transform: scale(1.05) translateY(-2px);
+}
+
+/* 4. Animație de Pop & Spin pentru graficul de statistici */
+@keyframes popAndSpin {
+    0% { transform: scale(0.3) rotate(-90deg); opacity: 0; }
+    80% { transform: scale(1.1) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.stats-pie-chart {
+    animation: popAndSpin 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 5. Apariție treptată pentru elementele din podium */
+@keyframes dropIn {
+    0% { transform: translateY(-50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.stats-podium-place {
+    animation: dropIn 0.6s ease-out forwards;
+}
+.stats-podium-place:nth-child(1) { animation-delay: 0.2s; }
+.stats-podium-place:nth-child(2) { animation-delay: 0.4s; }
+.stats-podium-place:nth-child(3) { animation-delay: 0.6s; }
+
+
+/* =========================================
+   🔥 SUPER CRAZY GOLD CHALLENGE EFFECTS 🔥
+   ========================================= */
+
+/* 1. THE 3D MATRIX FLIP (Tranziție Tabel -> Detalii) */
+.row-flip-out {
+    transform: perspective(1000px) translateZ(100px) rotateX(90deg);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) !important;
+    pointer-events: none;
+}
+
+/* 2. VREMEA INTERACTIVĂ (Se aplică pe tot containerul) */
+.weather-sunny {
+    animation: sunnyPulse 4s infinite alternate;
+    border-radius: 15px;
+}
+@keyframes sunnyPulse {
+    0% { box-shadow: 0 0 20px rgba(255, 218, 71, 0.1); background-color: rgba(255, 218, 71, 0.05); }
+    100% { box-shadow: 0 0 50px rgba(255, 218, 71, 0.4); background-color: rgba(255, 218, 71, 0.15); }
+}
+
+.weather-stormy {
+    animation: stormyPulse 3s infinite alternate;
+    border-radius: 15px;
+}
+@keyframes stormyPulse {
+    0% { box-shadow: 0 0 20px rgba(100, 100, 100, 0.2); background-color: rgba(100, 100, 100, 0.05); }
+    100% { box-shadow: 0 0 40px rgba(80, 80, 90, 0.5); background-color: rgba(80, 80, 90, 0.2); }
+}
+
+/* 4. THE EASTER EGG (PARTY MODE) 🪩 */
+.party-mode {
+    animation: raveBackground 1.5s infinite;
+    border-radius: 15px;
+}
+.party-mode h2, .party-mode h3, .party-mode span, .party-mode td {
+    color: #fff !important;
+    text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+}
+.party-mode .master-table tbody tr {
+    animation: danceRow 0.4s infinite alternate !important;
+}
+.party-mode .master-table tbody tr:nth-child(even) {
+    animation-direction: alternate-reverse !important;
+    animation-duration: 0.5s !important;
+}
+.party-mode .master-title-icon {
+    animation: spinFast 0.5s infinite linear;
+}
+
+@keyframes raveBackground {
+    0% { background-color: #12002b; box-shadow: 0 0 50px #ff00ff; }
+    33% { background-color: #001f2b; box-shadow: 0 0 50px #00ffff; }
+    66% { background-color: #2b0015; box-shadow: 0 0 50px #ff0000; }
+    100% { background-color: #12002b; box-shadow: 0 0 50px #ff00ff; }
+}
+@keyframes danceRow {
+    0% { transform: rotate(-2deg) scale(1.05); background-color: rgba(255,0,255,0.3) !important; }
+    100% { transform: rotate(2deg) scale(1.05); background-color: rgba(0,255,255,0.3) !important; }
+}
+@keyframes spinFast { 100% { transform: rotate(360deg) scale(1.2); } }
