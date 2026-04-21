@@ -1,19 +1,21 @@
 // src/components/MasterView.jsx
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMasterView } from '../hooks/useMasterView';
 import { useNavigate } from 'react-router-dom';
+import { useStudentStore } from '../store/useStudentStore'; // <-- Adăugat importul pentru Store
 
 function MasterView({ students = [], onStudentClick, onAddClick }) {
     const navigate = useNavigate();
     const [studentsState, setStudentsState] = useState(students);
 
+    // --- CONECTARE LA BACKEND PENTRU SILVER CHALLENGE ---
+    const isGeneratorRunning = useStudentStore((state) => state.isGeneratorRunning);
+    const toggleGenerator = useStudentStore((state) => state.toggleGenerator);
+
     // --- FIX: Sincronizăm starea locală când vin datele de la server ---
     useEffect(() => {
         setStudentsState(students);
     }, [students]);
-
-    // control to start/stop the automatic updates
-    const [isRunning, setIsRunning] = useState(false);
 
     // --- STĂRI NOI PENTRU EFECTELE "CRAZY" ---
     const [clickCount, setClickCount] = useState(0); // Câte click-uri pe soare
@@ -56,74 +58,18 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
         { m: 'May', h: '80%', c: '#ffda47' }
     ]);
 
-    const intervalRef = useRef(null);
-
+    // Efect vizual: Animăm graficul de bare doar când vin date noi prin WebSockets
     useEffect(() => {
-        // only run the generator when statistics tab is open and user started it
-        if (activeTab === 'statistics' && isRunning) {
-            const applyUpdate = () => {
-                // mutate some existing students' grades and sometimes append a new synthetic student
-                setStudentsState(prev => {
-                    const next = Array.isArray(prev) ? [...prev] : [];
-                    if (next.length > 0) {
-                        const grades = ['FB', 'B', 'S', 'I'];
-                        const changes = Math.random() < 0.3 ? 2 : 1;
-                        for (let k = 0; k < changes; k++) {
-                            const idx = Math.floor(Math.random() * next.length);
-                            const current = next[idx] || {};
-                            let newGrade = current.grade || grades[Math.floor(Math.random() * grades.length)];
-                            let tries = 0;
-                            while (newGrade === current.grade && tries < 6) {
-                                newGrade = grades[Math.floor(Math.random() * grades.length)];
-                                tries++;
-                            }
-                            next[idx] = { ...current, grade: newGrade };
-                        }
-                    }
-
-                    // append with good probability
-                    if (Math.random() < 0.6) {
-                        idCounterRef.current += 1;
-                        const sampleLast = ['Popescu', 'Ionescu', 'Marin', 'Dumitru', 'Stan', 'Nicu', 'Vasilescu'];
-                        const sampleFirst = ['Andrei', 'Maria', 'Ioana', 'Mihai', 'Elena', 'Catalin', 'Ana'];
-                        const gradesArr = ['FB', 'B', 'S', 'I'];
-                        const newStudent = {
-                            id: `synth-${idCounterRef.current}`,
-                            lastName: sampleLast[Math.floor(Math.random() * sampleLast.length)],
-                            firstName: sampleFirst[Math.floor(Math.random() * sampleFirst.length)],
-                            grade: gradesArr[Math.floor(Math.random() * gradesArr.length)],
-                            mentions: 'Auto-generated entry for demo.'
-                        };
-                        next.push(newStudent);
-                    }
-
-                    // keep list bounded
-                    const MAX = 50;
-                    if (next.length > MAX) return next.slice(next.length - MAX);
-                    return next;
-                });
-
-                // visual nudge for bars
-                setBars(prev => prev.map(bar => {
-                    const current = parseInt(bar.h, 10) || 50;
-                    const delta = Math.floor(Math.random() * 21) - 10;
-                    let next = current + delta;
-                    next = Math.max(10, Math.min(100, next));
-                    return { ...bar, h: `${next}%`, c: next > 70 ? '#ffda47' : '#d1d9d1' };
-                }));
-            };
-
-            applyUpdate();
-            intervalRef.current = setInterval(applyUpdate, 3000);
+        if (isGeneratorRunning) {
+            setBars(prev => prev.map(bar => {
+                const current = parseInt(bar.h, 10) || 50;
+                const delta = Math.floor(Math.random() * 21) - 10;
+                let next = current + delta;
+                next = Math.max(10, Math.min(100, next));
+                return { ...bar, h: `${next}%`, c: next > 70 ? '#ffda47' : '#d1d9d1' };
+            }));
         }
-
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        };
-    }, [activeTab, isRunning]);
+    }, [studentsState.length, isGeneratorRunning]);
 
     const studentsWithProblems = studentsState.filter(s => s.grade === 'S' || s.grade === 'I');
 
@@ -177,12 +123,14 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                     <div className="master-tab-group" style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div className={`master-tab ${activeTab === 'table' ? 'active' : ''}`} onClick={() => setActiveTab('table')}>Warnings</div>
                         <div className={`master-tab ${activeTab === 'statistics' ? 'active' : ''}`} onClick={() => setActiveTab('statistics')}>Statistics</div>
+
+                        {/* Butonul de Generator Modificat */}
                         <button
-                            onClick={() => setIsRunning(r => !r)}
-                            title="Start/Stop automatic updates"
-                            style={{ marginLeft: '6px', padding: '6px 10px', borderRadius: '8px', border: 'none', backgroundColor: isRunning ? '#ff6b6b' : '#3aa76d', color: 'white', cursor: 'pointer', fontWeight: '600' }}
+                            onClick={() => toggleGenerator(!isGeneratorRunning)}
+                            title="Start/Stop Server Generator"
+                            style={{ marginLeft: '6px', padding: '6px 10px', borderRadius: '8px', border: 'none', backgroundColor: isGeneratorRunning ? '#ff6b6b' : '#3aa76d', color: 'white', cursor: 'pointer', fontWeight: '600' }}
                         >
-                            {isRunning ? 'Stop' : 'Start'}
+                            {isGeneratorRunning ? 'Stop Generator' : 'Start Generator'}
                         </button>
                     </div>
 
@@ -212,7 +160,6 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                                 style={{
                                     cursor: 'pointer',
                                     borderBottom: '1px solid #ff0000',
-                                    /* MAGIA REACT: Forțăm tranziția și transformarea direct din state! */
                                     transition: 'all 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53)',
                                     transform: flippingRowId === s.id ? 'perspective(1000px) translateZ(100px) rotateX(90deg)' : 'perspective(1000px) translateZ(0px) rotateX(0deg)',
                                     opacity: flippingRowId === s.id ? 0 : 1,
