@@ -1,19 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1776721920453" clover="3.2.0">
-  <project timestamp="1776721920453" name="All files">
-    <metrics statements="37" coveredstatements="37" conditionals="16" coveredconditionals="13" methods="14" coveredmethods="14" elements="67" coveredelements="64" complexity="0" loc="37" ncloc="37" packages="2" files="2" classes="2"/>
+<coverage generated="1776792250806" clover="3.2.0">
+  <project timestamp="1776792250807" name="All files">
+    <metrics statements="59" coveredstatements="59" conditionals="20" coveredconditionals="20" methods="17" coveredmethods="17" elements="96" coveredelements="96" complexity="0" loc="59" ncloc="59" packages="3" files="3" classes="3"/>
+    <package name="controllers">
+      <metrics statements="22" coveredstatements="22" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3"/>
+      <file name="generatorController.js" path="C:\Users\Me\SDI\implementation\server-mpp\src\controllers\generatorController.js">
+        <metrics statements="22" coveredstatements="22" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="9" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="37" count="4" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="41" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="42" count="4" type="stmt"/>
+        <line num="43" count="4" type="stmt"/>
+        <line num="44" count="4" type="stmt"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="47" count="3" type="stmt"/>
+      </file>
+    </package>
     <package name="repository">
       <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="2" methods="8" coveredmethods="8"/>
       <file name="studentRepository.js" path="C:\Users\Me\SDI\implementation\server-mpp\src\repository\studentRepository.js">
         <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="2" methods="8" coveredmethods="8"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="83" count="1" type="stmt"/>
-        <line num="85" count="1" type="stmt"/>
-        <line num="88" count="1" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+        <line num="85" count="2" type="stmt"/>
+        <line num="88" count="2" type="stmt"/>
         <line num="93" count="32" type="stmt"/>
-        <line num="98" count="1" type="stmt"/>
-        <line num="99" count="1" type="stmt"/>
-        <line num="100" count="1" type="stmt"/>
+        <line num="98" count="2" type="stmt"/>
+        <line num="99" count="2" type="stmt"/>
+        <line num="100" count="2" type="stmt"/>
         <line num="105" count="17" type="stmt"/>
         <line num="106" count="2" type="cond" truecount="2" falsecount="0"/>
         <line num="109" count="1" type="stmt"/>
@@ -21,34 +49,34 @@
         <line num="115" count="2" type="stmt"/>
         <line num="116" count="32" type="stmt"/>
         <line num="117" count="2" type="stmt"/>
-        <line num="121" count="1" type="stmt"/>
+        <line num="121" count="2" type="stmt"/>
       </file>
     </package>
     <package name="services">
-      <metrics statements="21" coveredstatements="21" conditionals="14" coveredconditionals="11" methods="6" coveredmethods="6"/>
+      <metrics statements="21" coveredstatements="21" conditionals="14" coveredconditionals="14" methods="6" coveredmethods="6"/>
       <file name="studentService.js" path="C:\Users\Me\SDI\implementation\server-mpp\src\services\studentService.js">
-        <metrics statements="21" coveredstatements="21" conditionals="14" coveredconditionals="11" methods="6" coveredmethods="6"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="5" count="1" type="stmt"/>
-        <line num="6" count="5" type="stmt"/>
-        <line num="7" count="5" type="cond" truecount="4" falsecount="0"/>
-        <line num="8" count="5" type="cond" truecount="3" falsecount="1"/>
-        <line num="9" count="5" type="cond" truecount="2" falsecount="0"/>
-        <line num="12" count="5" type="cond" truecount="2" falsecount="0"/>
-        <line num="13" count="2" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="23" count="1" type="stmt"/>
-        <line num="25" count="1" type="stmt"/>
+        <metrics statements="21" coveredstatements="21" conditionals="14" coveredconditionals="14" methods="6" coveredmethods="6"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="10" type="stmt"/>
+        <line num="7" count="10" type="cond" truecount="4" falsecount="0"/>
+        <line num="8" count="10" type="cond" truecount="4" falsecount="0"/>
+        <line num="9" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="12" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="6" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
         <line num="34" count="3" type="stmt"/>
-        <line num="38" count="3" type="stmt"/>
-        <line num="39" count="1" type="stmt"/>
-        <line num="43" count="2" type="stmt"/>
+        <line num="38" count="7" type="stmt"/>
+        <line num="39" count="2" type="stmt"/>
+        <line num="43" count="3" type="stmt"/>
         <line num="44" count="2" type="stmt"/>
         <line num="48" count="2" type="stmt"/>
-        <line num="52" count="1" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
       </file>
     </package>
   </project>

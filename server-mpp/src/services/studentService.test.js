@@ -75,4 +75,50 @@ describe('Student Service Unit Tests', () => {
         const deletedStudent = studentService.getStudentById(3);
         expect(deletedStudent).toBeUndefined();
     });
+
+    test('getStudentsPaginated - ar trebui sa foloseasca parametrii default (page 1, limit 10)', () => {
+        // Apelăm funcția FĂRĂ NICIUN ARGUMENT ca să forțăm Jest să intre pe "page = 1, limit = 10"
+        const result = studentService.getStudentsPaginated();
+
+        expect(result.currentPage).toBe(1);
+        expect(result.data.length).toBeLessThanOrEqual(10);
+    });
+
+});
+describe('studentService Validations (Edge Cases)', () => {
+    // Înainte de fiecare test, golim repo-ul (dacă ai o funcție de clear)
+    // Sau pur și simplu ne bazăm pe erorile aruncate de validare
+
+    test('createStudent - should throw an error if lastName is missing', () => {
+        const invalidStudent = { firstName: 'Ion', grade: 'FB' }; // Fără lastName
+
+        expect(() => {
+            studentService.createStudent(invalidStudent);
+        }).toThrow("Last Name is required.");
+    });
+
+    test('createStudent - should throw an error if firstName is empty', () => {
+        const invalidStudent = { lastName: 'Popescu', firstName: '   ', grade: 'B' };
+
+        expect(() => {
+            studentService.createStudent(invalidStudent);
+        }).toThrow("First Name is required.");
+    });
+
+    test('createStudent - should throw an error if grade is invalid', () => {
+        const invalidStudent = { lastName: 'Popescu', firstName: 'Ion', grade: 'X' }; // Notă greșită
+
+        expect(() => {
+            studentService.createStudent(invalidStudent);
+        }).toThrow("Grade must be FB, B, S, or I.");
+    });
+
+    test('updateStudent - should throw multiple errors combined', () => {
+        const invalidStudent = { lastName: '', firstName: '', grade: 'Y' };
+
+        expect(() => {
+            // Presupunem că vrem să dăm update elevului cu ID-ul '1'
+            studentService.updateStudent('1', invalidStudent);
+        }).toThrow("Last Name is required. First Name is required. Grade must be FB, B, S, or I.");
+    });
 });
