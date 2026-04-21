@@ -73,6 +73,32 @@ export const useStudentStore = create((set) => ({
         }
     },
 
+    // src/store/useStudentStore.js
+
+    addGradeToStudent: async (studentId, subjectName, gradeValue) => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/students/${studentId}/grades`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subjectName, gradeValue })
+            });
+
+            const updatedStudent = await response.json();
+
+            // 🟢 LOG PENTRU TINE: Verifică în consola browserului (F12) dacă apar notele noi aici
+            console.log("Student primit de la server:", updatedStudent);
+
+            set((state) => ({
+                students: state.students.map(s =>
+                    // Comparăm transformând totul în String pentru siguranță 100%
+                    String(s.id) === String(studentId) ? updatedStudent : s
+                )
+            }));
+        } catch (error) {
+            console.error("Eroare la adăugare:", error);
+        }
+    },
+
     deleteStudent: async (idToRemove) => {
         try {
             if (!navigator.onLine) throw new Error('OFFLINE');
@@ -196,4 +222,6 @@ export const useStudentStore = create((set) => ({
             set({ isGeneratorRunning: !shouldStart });
         }
     }
+
+
 }));

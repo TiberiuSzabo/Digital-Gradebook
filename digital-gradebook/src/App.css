@@ -234,6 +234,29 @@ body, html {
 .detail-footer-value { margin-top: 10px; font-size: 14px; }
 .detail-mention-label { font-weight: bold; }
 
+
+.detail-stats-section {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 10px;
+}
+.detail-subjects-list { flex: 1; }
+.subjects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+.detail-chart-box {
+    width: 250px;
+    height: 250px;
+}
+.grade-FB { color: #4caf50; font-weight: bold; }
+.grade-I { color: #f44336; font-weight: bold; }
+
 /* --- AUTH VIEWS (LOGIN / REGISTER) --- */
 .auth-container {
     display: flex;

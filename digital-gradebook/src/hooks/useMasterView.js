@@ -6,7 +6,8 @@ export function useMasterView(students) {
     const [activeTab, setActiveTab] = useState('table');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
-    const studentsPerPage = 10;
+    // Pentru moment, lăsăm limit la 20 ca să-i vezi pe toți 15 până facem Infinite Scroll
+    const studentsPerPage = 20;
     const totalPages = Math.ceil(students.length / studentsPerPage) || 1;
 
     const gradeValues = { 'I': 1, 'S': 2, 'B': 3, 'FB': 4 };
@@ -20,16 +21,20 @@ export function useMasterView(students) {
     };
 
     const sortedStudents = [...students].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
         if (sortConfig.key === 'name') {
-            const nameA = `${a.lastName} ${a.firstName}`;
-            const nameB = `${b.lastName} ${b.firstName}`;
+            const nameA = `${a.lastName} ${a.firstName}`.toLowerCase();
+            const nameB = `${b.lastName} ${b.firstName}`.toLowerCase();
             if (nameA < nameB) return sortConfig.direction === 'ascending' ? -1 : 1;
             if (nameA > nameB) return sortConfig.direction === 'ascending' ? 1 : -1;
             return 0;
         }
-        if (sortConfig.key === 'grade') {
-            const valA = gradeValues[a.grade];
-            const valB = gradeValues[b.grade];
+
+        // --- FIX: Sortăm după finalGrade (nu grade) ---
+        if (sortConfig.key === 'finalGrade') {
+            const valA = gradeValues[a.finalGrade] || 0;
+            const valB = gradeValues[b.finalGrade] || 0;
             if (valA < valB) return sortConfig.direction === 'ascending' ? -1 : 1;
             if (valA > valB) return sortConfig.direction === 'ascending' ? 1 : -1;
             return 0;
@@ -51,7 +56,7 @@ export function useMasterView(students) {
 
     let classAverageStr = "-";
     let classProgressStr = "-";
-    let fbDeg = 0, bDeg = 0, sDeg = 0, iDeg = 0;
+    let fbDeg = 0, bDeg = 0, sDeg = 0;
     let fbCount = 0, bCount = 0, sCount = 0, iCount = 0;
 
     if (students.length > 0) {
@@ -60,17 +65,19 @@ export function useMasterView(students) {
 
         let totalScore = 0;
         students.forEach(s => {
-            totalScore += gradeValues[s.grade] || 0;
+            // Folosim media numerică calculată de server pentru precizie maximă la media clasei
+            totalScore += s.averageNumeric || gradeValues[s.finalGrade] || 0;
         });
 
         const avgScore = Math.round(totalScore / students.length);
         classAverageStr = reverseGrade[avgScore] || '-';
         classProgressStr = progressMap[classAverageStr] || '-';
 
-        fbCount = students.filter(s => s.grade === 'FB').length;
-        bCount = students.filter(s => s.grade === 'B').length;
-        sCount = students.filter(s => s.grade === 'S').length;
-        iCount = students.filter(s => s.grade === 'I').length;
+        // --- FIX STATS: Numărăm folosind finalGrade ---
+        fbCount = students.filter(s => s.finalGrade === 'FB').length;
+        bCount = students.filter(s => s.finalGrade === 'B').length;
+        sCount = students.filter(s => s.finalGrade === 'S').length;
+        iCount = students.filter(s => s.finalGrade === 'I').length;
 
         fbDeg = (fbCount / students.length) * 360;
         bDeg = (bCount / students.length) * 360;
@@ -84,7 +91,7 @@ export function useMasterView(students) {
         currentStudents, getEmoji,
         classAverageStr, classProgressStr,
         indexOfFirstStudent, indexOfLastStudent,
-        fbDeg, bDeg, sDeg, iDeg,
+        fbDeg, bDeg, sDeg,
         fbCount, bCount, sCount, iCount
     };
 }

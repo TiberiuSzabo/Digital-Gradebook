@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/studentController');
+const studentService = require('../services/studentService');
 
 // Definim rutele REST
 router.get('/', studentController.getAll);
@@ -11,3 +12,14 @@ router.put('/:id', studentController.update);
 router.delete('/:id', studentController.delete);
 
 module.exports = router;
+
+// server-mpp/src/routes/studentRoutes.js
+router.post('/:id/grades', (req, res) => {
+    try {
+        const { subjectName, gradeValue } = req.body;
+        const updatedStudent = studentService.addGrade(req.params.id, subjectName, gradeValue);
+        res.json(updatedStudent);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
