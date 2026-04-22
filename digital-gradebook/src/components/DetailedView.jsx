@@ -1,6 +1,5 @@
 // src/components/DetailedView.jsx
 import React from 'react';
-
 import { useStudentStore } from '../store/useStudentStore';
 import {
     Chart as ChartJS,
@@ -16,15 +15,13 @@ import { Radar } from 'react-chartjs-2';
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
-    // 1. Hook-urile de Store se pun mereu la începutul funcției, o singură dată
     const students = useStudentStore(state => state.students);
-// Căutăm studentul în lista din store. De fiecare dată când store-ul se schimbă,
-// 'find' va returna obiectul nou cu notele noi, iar React va redesena totul.
 
-    // 2. Căutăm studentul proaspăt (Folosim ID-ul din prop-ul redenumit initialStudent)
-    const student = students.find(s => String(s.id) === String(initialStudent?.id)) || initialStudent;    const addGradeToStudent = useStudentStore(state => state.addGradeToStudent);
+    const student = students.find(s => String(s.id) === String(initialStudent?.id)) || initialStudent;
 
-    // 3. State pentru formularul de note
+    const addGradeToStudent = useStudentStore(state => state.addGradeToStudent);
+    const removeGradeFromStudent = useStudentStore(state => state.removeGradeFromStudent);
+
     const [newGrade, setNewGrade] = React.useState({ subject: 'Math', value: 'FB' });
 
     if (!student) return null;
@@ -37,12 +34,44 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
         return '😊';
     };
 
-    // --- DATE GRAFIC ---
-    const subjectLabels = student.subjectMedias ? Object.keys(student.subjectMedias) : [];
-    const subjectValues = student.subjectMedias
-        ? Object.values(student.subjectMedias).map(m => m.numeric)
-        : [];
+    // ==========================================
+    // 🕷️ FIX PENTRU PÂNZA DE PĂIANJEN
+    // Calculăm mediile pe loc din array-ul de note
+    // ==========================================
+    const gradeToNum = (grade) => {
+        const map = { 'FB': 4, 'B': 3, 'S': 2, 'I': 1 };
+        return map[grade] || 0;
+    };
 
+    const numToGrade = (num) => {
+        if (num === 0) return '-';
+        if (num >= 3.5) return 'FB';
+        if (num >= 2.5) return 'B';
+        if (num >= 1.5) return 'S';
+        return 'I';
+    };
+
+    const subjectStats = {};
+    const subjectLabels = [];
+    const subjectValues = [];
+
+    if (student.subjects) {
+        student.subjects.forEach(sub => {
+            subjectLabels.push(sub.name);
+
+            if (!sub.grades || sub.grades.length === 0) {
+                subjectStats[sub.name] = { numeric: 0, letter: '-' };
+                subjectValues.push(0);
+            } else {
+                const nums = sub.grades.map(gradeToNum);
+                const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+                subjectStats[sub.name] = { numeric: avg, letter: numToGrade(avg) };
+                subjectValues.push(avg);
+            }
+        });
+    }
+
+    // Acum graficul are și "colțurile" (materiile) și datele!
     const chartData = {
         labels: subjectLabels,
         datasets: [
@@ -59,7 +88,12 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
 
     const handleAddGrade = async () => {
         await addGradeToStudent(student.id, newGrade.subject, newGrade.value);
-        alert(`Nota ${newGrade.value} a fost adăugată la ${newGrade.subject}!`);
+    };
+
+    const handleDeleteGrade = async (subjectName, index) => {
+        if (window.confirm(`Ești sigur că vrei să ștergi nota de la ${subjectName}?`)) {
+            await removeGradeFromStudent(student.id, subjectName, index);
+        }
     };
 
     const chartOptions = {
@@ -114,7 +148,6 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                             <div className="detail-subjects-list">
                                 <h3>Grades by Subject</h3>
 
-                                {/* Formular Adăugare Note */}
                                 <div className="add-grade-box" style={{ margin: '15px 0', padding: '10px', border: '1px dashed #ccc', borderRadius: '8px' }}>
                                     <h4 style={{ margin: '0 0 10px 0' }}>Add New Grade</h4>
                                     <select
@@ -146,9 +179,26 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                                 <div className="subjects-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {student.subjects && student.subjects.map((sub, idx) => (
                                         <div key={idx} style={{ padding: '5px', borderBottom: '1px solid #eee' }}>
-                                            <strong>{sub.name}:</strong> {sub.grades.join(', ') || '-'}
+                                            <strong>{sub.name}:</strong>{' '}
+
+                                            {sub.grades && sub.grades.length > 0 ? (
+                                                sub.grades.map((grade, gradeIndex) => (
+                                                    <span key={gradeIndex} style={{ display: 'inline-block', margin: '0 3px', padding: '2px 6px', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '10px', fontSize: '14px' }}>
+                                                        {grade}
+                                                        <button
+                                                            onClick={() => handleDeleteGrade(sub.name, gradeIndex)}
+                                                            style={{ color: '#ff4d4d', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px', fontSize: '12px', padding: '0' }}
+                                                            title="Șterge nota"
+                                                        >✕</button>
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                '-'
+                                            )}
+
                                             <span style={{ marginLeft: '5px', color: '#666' }}>
-                                                ({student.subjectMedias?.[sub.name]?.letter || '-'})
+                                                {/* Afișăm litera (media pe acea materie) generată mai sus */}
+                                                ({subjectStats[sub.name]?.letter || '-'})
                                             </span>
                                         </div>
                                     ))}

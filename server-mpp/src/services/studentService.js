@@ -1,4 +1,3 @@
-// src/services/studentService.js
 const studentRepository = require('../repository/studentRepository');
 
 // --- HELPERI PENTRU CONVERSIE (GOLD LOGIC) ---
@@ -25,7 +24,7 @@ const processStudentStats = (student) => {
 
     student.subjects.forEach(sub => {
         const numGrades = sub.grades.map(gradeToNum);
-        const avg = numGrades.reduce((a, b) => a + b, 0) / numGrades.length;
+        const avg = numGrades.length > 0 ? numGrades.reduce((a, b) => a + b, 0) / numGrades.length : 0;
 
         subjectMedias[sub.name] = {
             numeric: parseFloat(avg.toFixed(2)),
@@ -39,7 +38,6 @@ const processStudentStats = (student) => {
     return {
         ...student,
         subjectMedias,
-        // Aceasta este media mediilor care va apărea în tabelul principal
         finalGrade: numToGrade(generalAvg),
         averageNumeric: parseFloat(generalAvg.toFixed(2))
     };
@@ -48,13 +46,9 @@ const processStudentStats = (student) => {
 const studentService = {
     getStudentsPaginated: (page = 1, limit = 10) => {
         const allStudents = studentRepository.getAll();
-
-        // Paginare
         const startIndex = (page - 1) * limit;
         const endIndex = startIndex + limit;
         const paginatedRaw = allStudents.slice(startIndex, endIndex);
-
-        // Procesăm fiecare student pentru a-i calcula mediile înainte de a-l trimite
         const dataWithStats = paginatedRaw.map(processStudentStats);
 
         return {
@@ -71,7 +65,6 @@ const studentService = {
     },
 
     createStudent: (studentData) => {
-        // La creare, dacă nu trimitem subiecte, îi punem lista goală implicită
         const studentToSave = {
             ...studentData,
             subjects: studentData.subjects || [
@@ -96,28 +89,35 @@ const studentService = {
         return studentRepository.delete(id);
     },
 
-    // Funcție nouă pentru Gold: adăugarea unei note la o materie specifică
-    // server-mpp/src/services/studentService.js
-
     addGrade: (studentId, subjectName, gradeValue) => {
-        // 1. Găsește studentul (folosim Number pentru siguranță)
         const student = studentRepository.getById(Number(studentId));
         if (!student) throw new Error("Student not found");
 
-        // 2. Găsește materia în interiorul obiectului student
         const subject = student.subjects.find(s => s.name === subjectName);
         if (!subject) throw new Error("Subject not found");
 
-        // 3. ADĂUGARE NOTĂ (Push direct în referință)
         subject.grades.push(gradeValue);
-
-        // 4. Update în "baza de date" (Repository)
         const updatedRaw = studentRepository.update(Number(studentId), student);
-
-        // 5. RECALCULĂM STATISTICILE (fără asta, finalGrade rămâne vechi)
         const processed = processStudentStats(updatedRaw);
 
         console.log(`✅ Nota ${gradeValue} adăugată la ${subjectName} pentru ${student.lastName}`);
+        return processed;
+    },
+
+    removeGrade: (studentId, subjectName, gradeIndex) => {
+        // Am reparat logica de căutare ca să folosească repository-ul tău corect!
+        const student = studentRepository.getById(Number(studentId));
+        if (!student) throw new Error("Student not found");
+
+        const subject = student.subjects.find(sub => sub.name === subjectName);
+        if (!subject || !subject.grades) throw new Error("Materia nu există la acest elev!");
+
+        subject.grades.splice(gradeIndex, 1);
+
+        const updatedRaw = studentRepository.update(Number(studentId), student);
+        const processed = processStudentStats(updatedRaw);
+
+        console.log(`✅ Nota ștearsă la ${subjectName} pentru ${student.lastName}`);
         return processed;
     }
 };

@@ -18,11 +18,13 @@ function AppContent() {
     const [selectedStudent, setSelectedStudent] = useState(null);
 
     const students = useStudentStore((state) => state.students);
-    const fetchStudents = useStudentStore((state) => state.fetchStudents);
+
+    // SCHIMBARE: Folosim fetchStudentsGraphQL în loc de fetchStudents
+    const fetchStudentsGraphQL = useStudentStore((state) => state.fetchStudentsGraphQL);
+
     const deleteStudent = useStudentStore((state) => state.deleteStudent);
     const saveStudent = useStudentStore((state) => state.saveStudent);
 
-    // Extragem funcțiile noi pentru Silver Challenge
     const addStudentLive = useStudentStore((state) => state.addStudentLive);
     const syncOfflineData = useStudentStore((state) => state.syncOfflineData);
 
@@ -30,7 +32,6 @@ function AppContent() {
     const logout = useAuthStore((state) => state.logout);
     const { theme, toggleTheme, lastActivity, logActivity } = useUserTracking();
 
-    // --- 📡 DETECTORUL DE CONEXIUNE (SILVER CHALLENGE) ---
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
     useEffect(() => {
@@ -53,26 +54,23 @@ function AppContent() {
         };
     }, [syncOfflineData]);
 
-    // --- 📻 RECEPTORUL WEBSOCKETS (SILVER CHALLENGE) ---
     useEffect(() => {
         const socket = io('http://localhost:3000');
-
         socket.on('student_added', (newStudent) => {
             addStudentLive(newStudent);
         });
-
         return () => socket.disconnect();
     }, [addStudentLive]);
 
-    // Fetch initial + Verificare Buzunar Offline la pornire
+    // SCHIMBARE: Apelăm fetchStudentsGraphQL în initApp
     useEffect(() => {
         const initApp = async () => {
             console.log("🚀 Aplicația pornește. Verificăm buzunarul offline...");
             await syncOfflineData();
-            await fetchStudents();
+            await fetchStudentsGraphQL(1); // Modificat aici
         };
         initApp();
-    }, [fetchStudents, syncOfflineData]);
+    }, [fetchStudentsGraphQL, syncOfflineData]);
 
     const themeStyles = {
         appBackground: theme === 'dark' ? '#121212' : '#dfffd6',
@@ -109,15 +107,12 @@ function AppContent() {
         }}>
             <div style={{ fontSize: '14px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                 <div><strong>Ultima activitate:</strong> <span style={{ opacity: 0.8 }}>{lastActivity}</span></div>
-
-                {/* 🚨 AICI E BANNERUL OFFLINE CARE SE ACTIVEAZĂ DINAMIC */}
                 {isOffline && (
                     <div style={{ backgroundColor: '#ff4d4d', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', animation: 'pulse 1.5s infinite' }}>
                         📡 OFFLINE MODE
                     </div>
                 )}
             </div>
-
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                 {currentUser && (
                     <span style={{ fontSize: '14px', fontWeight: 'bold', color: themeStyles.textColor }}>
@@ -135,10 +130,27 @@ function AppContent() {
         </div>
     );
 
+    // RESTUL RĂMÂNE EXACT CA ÎN CODUL TĂU DE REFERINȚĂ
     return (
-        <div style={{ backgroundColor: themeStyles.appBackground, color: themeStyles.textColor, height: '100vh', width: '99.9vw', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease' }}>
+        <div style={{
+            backgroundColor: themeStyles.appBackground,
+            color: themeStyles.textColor,
+            minHeight: '100vh',
+            width: '100vw', // Ocupă tot viewport-ul
+            display: 'flex',
+            flexDirection: 'column',
+            margin: 0,
+            padding: 0,
+            overflowX: 'hidden' // Să nu apară scroll stânga-dreapta aiurea
+        }}>
             <TopStatusBar />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', overflowY: 'auto' }}>
+
+            <div style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%'
+            }}>
                 <Routes>
                     <Route path="/" element={
                         currentUser ? (
@@ -158,17 +170,17 @@ function AppContent() {
                     <Route path="/login" element={<LogInView />} />
                     <Route path="/register" element={<RegisterView />} />
                     <Route path="/master" element={
-                        <div style={{ width: '100%', maxWidth: '1400px', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <MasterView students={students} onStudentClick={(s) => { setSelectedStudent(s); navigate('/detail'); }} onAddClick={() => { setSelectedStudent(null); navigate('/form'); }} />
                         </div>
                     } />
                     <Route path="/form" element={
-                        <div style={{ width: '100%', maxWidth: '800px', padding: '20px' }}>
+                        <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto',padding: '20px' }}>
                             <StudentForm initialData={selectedStudent} onSave={handleSave} onCancel={() => navigate(selectedStudent ? '/detail' : '/master')} />
                         </div>
                     } />
                     <Route path="/detail" element={
-                        <div style={{ width: '100%', maxWidth: '900px', padding: '20px' }}>
+                        <div style={{ width: '100%', maxWidth: '900px',margin: '0 auto', padding: '20px' }}>
                             <DetailedView student={selectedStudent} onBack={() => navigate('/master')} onEdit={() => navigate('/form')} onDelete={() => handleDelete(selectedStudent.id)} />
                         </div>
                     } />

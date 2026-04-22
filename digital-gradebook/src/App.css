@@ -5,11 +5,11 @@ rulez cu npm run dev
     box-sizing: border-box;
 }
 
-body, html {
+body, html, #root {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
     background-color: #dfffd6;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #2c3e50;
@@ -18,6 +18,9 @@ body, html {
 #root {
     width: 100%;
     min-height: 100vh;
+    max-width: none !important; /* ASTA OMOARĂ LINIA ȘI SPAȚIUL GOL DIN STÂNGA */
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .student-table {
@@ -148,6 +151,10 @@ body, html {
 .master-emoji-bg { background-color: #fff6c5; }
 .master-table-footer { display: flex; justify-content: space-between; padding: 15px 30px; color: #333; font-size: 16px; }
 
+table {
+    border-left: none !important;
+    box-shadow: none;
+}
 /* Paginare */
 .master-pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; font-size: 18px; }
 .master-page-nav { cursor: pointer; }
@@ -482,6 +489,12 @@ body, html {
 .party-mode .master-title-icon {
     animation: spinFast 0.5s infinite linear;
 }
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
+
 
 @keyframes raveBackground {
     0% { background-color: #12002b; box-shadow: 0 0 50px #ff00ff; }
