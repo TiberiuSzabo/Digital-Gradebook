@@ -1,12 +1,12 @@
 // src/components/MasterView.jsx
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useMasterView } from '../hooks/useMasterView';
 import { useNavigate } from 'react-router-dom';
 import { useStudentStore } from '../store/useStudentStore';
+import SecurityLogsModal from './SecurityLogsModal';
 
 function MasterView({ students = [], onStudentClick, onAddClick }) {
     const navigate = useNavigate();
-    const [studentsState, setStudentsState] = useState(students);
 
     // --- INFINITE SCROLL STATE TRAS DIN STORE ---
     const isGeneratorRunning = useStudentStore((state) => state.isGeneratorRunning);
@@ -15,22 +15,17 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
     const storeCurrentPage = useStudentStore((state) => state.currentPage);
     const hasMore = useStudentStore((state) => state.hasMore);
     const [isFetchingNext, setIsFetchingNext] = useState(false);
+    const [isSecurityOpen, setIsSecurityOpen] = useState(false);
 
-    useEffect(() => {
-        setStudentsState(students);
-    }, [students]);
-
-    // --- SENZORUL DE INFINITE SCROLL (INTERSECTION OBSERVER) ---
+    // --- SENZORUL DE INFINITE SCROLL ---
     const observer = useRef();
     const lastStudentElementRef = useCallback(node => {
-        if (isFetchingNext) return; // Dacă deja caută, nu mai face spam
+        if (isFetchingNext) return;
         if (observer.current) observer.current.disconnect();
 
         observer.current = new IntersectionObserver(entries => {
-            // Dacă ultimul element este vizibil pe ecran și mai avem pagini
             if (entries[0].isIntersecting && hasMore) {
                 setIsFetchingNext(true);
-                // Cerem pagina următoare
                 fetchStudentsGraphQL(storeCurrentPage + 1).then(() => {
                     setIsFetchingNext(false);
                 });
@@ -44,48 +39,51 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
     const [isPartyMode, setIsPartyMode] = useState(false);
     const [flippingRowId, setFlippingRowId] = useState(null);
 
-    // Păstrăm useMasterView pentru statistici și sortare, dar ocolim paginarea lui locală
+    // Folosim hook-ul tău, dându-i direct students (nu mai avem nevoie de studentsState)
     const {
-        activeTab, setActiveTab, sortConfig, handleSort, getEmoji,
-        classAverageStr, classProgressStr, fbDeg, bDeg, sDeg, fbCount, bCount, sCount, iCount
-    } = useMasterView(studentsState);
+        activeTab, setActiveTab, getEmoji,
+        classAverageStr, classProgressStr
+    } = useMasterView(students);
 
-    // --- APLICĂM SORTAREA PE TOATĂ LISTA (nu doar pe o pagină tăiată) ---
-    const sortedAllStudents = React.useMemo(() => {
-        let sortable = [...studentsState];
-        if (sortConfig && sortConfig.key) {
+    // --- LOGICA NOUĂ DE SORTARE PENTRU TESTE ---
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedAllStudents = useMemo(() => {
+        let sortable = [...students];
+        if (sortConfig.key !== null) {
             sortable.sort((a, b) => {
-                let aVal = a[sortConfig.key];
-                let bVal = b[sortConfig.key];
-                if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+                // Dacă sortăm după notă, folosim numere ca să știe ordinea corectă
+                if (sortConfig.key === 'finalGrade') {
+                    const gradeToNumber = { "FB": 4, "B": 3, "S": 2, "I": 1 };
+                    const aVal = gradeToNumber[a.finalGrade] || 0;
+                    const bVal = gradeToNumber[b.finalGrade] || 0;
+
+                    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+                    return 0;
+                }
+
+                // Pentru orice altceva (ex: nume), sortăm alfabetic normal
+                const aVal = (a[sortConfig.key] || '').toString().toLowerCase();
+                const bVal = (b[sortConfig.key] || '').toString().toLowerCase();
+
+                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
                 return 0;
             });
         }
         return sortable;
-    }, [studentsState, sortConfig]);
+    }, [students, sortConfig]);
 
-    const [bars, setBars] = useState([
-        { m: 'Sep', h: '90%', c: '#ffda47' }, { m: 'Oct', h: '60%', c: '#d1d9d1' },
-        { m: 'Nov', h: '40%', c: '#d1d9d1' }, { m: 'Dec', h: '80%', c: '#ffda47' },
-        { m: 'Jan', h: '50%', c: '#d1d9d1' }, { m: 'Feb', h: '100%', c: '#ffda47' },
-        { m: 'Mar', h: '70%', c: '#d1d9d1' }, { m: 'Apr', h: '40%', c: '#d1d9d1' },
-        { m: 'May', h: '80%', c: '#ffda47' }
-    ]);
-
-    useEffect(() => {
-        if (isGeneratorRunning) {
-            setBars(prev => prev.map(bar => {
-                const current = parseInt(bar.h, 10) || 50;
-                const delta = Math.floor(Math.random() * 21) - 10;
-                let next = current + delta;
-                next = Math.max(10, Math.min(100, next));
-                return { ...bar, h: `${next}%`, c: next > 70 ? '#ffda47' : '#d1d9d1' };
-            }));
-        }
-    }, [studentsState.length, isGeneratorRunning]);
-
-    const studentsWithProblems = studentsState.filter(s => s.finalGrade === 'S' || s.finalGrade === 'I');
+    const studentsWithProblems = students.filter(s => s.finalGrade === 'S' || s.finalGrade === 'I' || s.finalGrade === 'UNKNOWN');
 
     const handleSunClick = () => {
         setClickCount(prev => prev + 1);
@@ -109,7 +107,6 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
         if (classAverageStr === 'I' || classAverageStr === 'S') weatherClass = 'weather-stormy';
     }
 
-    // --- FIX PENTRU PIE CHART ---
     const totalStats = sortedAllStudents.length || 1;
     const trueFbCount = sortedAllStudents.filter(s => s.finalGrade === 'FB').length;
     const trueBCount = sortedAllStudents.filter(s => s.finalGrade === 'B').length;
@@ -123,7 +120,6 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
     return (
         <div className={`master-container ${isPartyMode ? 'party-mode' : ''} ${weatherClass}`} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', transition: 'all 0.5s ease' }}>
 
-            {/* header */}
             <div className="animate-enter" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', backgroundColor: isPartyMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', transition: 'background-color 0.5s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <div
@@ -150,78 +146,91 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
 
                     <button className="btn-pulse" onClick={onAddClick} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#ffda47', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>+ New Student</button>
                     <button onClick={() => navigate('/class-weather')} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#e4f0ad', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>Class Weather</button>
+                    <button
+                        onClick={() => setIsSecurityOpen(true)}
+                        style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#dc3545', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white' }}
+                    >
+                        🚨 Security Logs
+                    </button>
                 </div>
             </div>
 
-            {/* main grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '20px', alignItems: 'start' }}>
 
-                {/* left: table */}
                 <div className="animate-enter" style={{ backgroundColor: isPartyMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.8)', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', overflowX: 'auto', animationDelay: '0.1s', transition: 'background-color 0.5s' }}>
                     <table className="master-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
                         <thead>
-                        <tr>
-                            <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'left', borderBottom: '2px solid #ccc', color: '#555' }}>Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? '↑' : '↓') : '↑↓'}</th>
-                            <th onClick={() => handleSort('finalGrade')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'center', borderBottom: '2px solid #ccc', color: '#555' }}>Final Grade {sortConfig.key === 'finalGrade' ? (sortConfig.direction === 'ascending' ? '↑' : '↓') : '↑↓'}</th>
-                            <th style={{ padding: '15px', borderBottom: '2px solid #ccc' }}></th>
-                        </tr>
+                            <tr>
+                                <th onClick={() => requestSort('lastName')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'left', borderBottom: '2px solid #ccc', color: '#555' }}>
+                                    Name {sortConfig.key === 'lastName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↑↓'}
+                                </th>
+                                <th onClick={() => requestSort('finalGrade')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'center', borderBottom: '2px solid #ccc', color: '#555' }}>
+                                    Final Grade {sortConfig.key === 'finalGrade' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↑↓'}
+                                </th>
+                                <th style={{ padding: '15px', borderBottom: '2px solid #ccc' }}></th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {sortedAllStudents.map((s, index) => {
-                            // AICI MONTĂM SENZORUL PE ULTIMUL RÂND DIN TABEL
-                            const isLastElement = sortedAllStudents.length === index + 1;
+                            {sortedAllStudents.map((s, index) => {
+                                const isLastElement = sortedAllStudents.length === index + 1;
 
-                            return (
-                                <tr
-                                    ref={isLastElement ? lastStudentElementRef : null}
-                                    key={s.id}
-                                    onClick={() => handleRowClick(s)}
-                                    style={{
-                                        cursor: 'pointer',
-                                        borderBottom: '1px solid #ff0000',
-                                        transition: 'all 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53)',
-                                        transform: flippingRowId === s.id ? 'perspective(1000px) translateZ(100px) rotateX(90deg)' : 'perspective(1000px) translateZ(0px) rotateX(0deg)',
-                                        opacity: flippingRowId === s.id ? 0 : 1,
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = isPartyMode ? 'rgba(255,0,255,0.3)' : '#f9f9f9';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = 'transparent';
-                                    }}
-                                >
-                                    <td style={{ padding: '15px', color: '#333', fontWeight: '500' }}><span style={{ marginRight: '10px', color: '#888' }}>{index + 1}.</span>{s.lastName} {s.firstName}</td>
-                                    <td style={{ padding: '15px', textAlign: 'center', color: '#333', fontWeight: 'bold' }}>{s.finalGrade}</td>
-                                    <td style={{ padding: '15px', textAlign: 'right' }}><span style={{ fontSize: '24px' }}>{getEmoji(s.finalGrade)}</span></td>
+                                return (
+                                    <tr
+                                        ref={isLastElement ? lastStudentElementRef : null}
+                                        key={s.id}
+                                        onClick={() => handleRowClick(s)}
+                                        style={{
+                                            cursor: 'pointer',
+                                            borderBottom: '1px solid #ff0000',
+                                            transition: 'all 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53)',
+                                            transform: flippingRowId === s.id ? 'perspective(1000px) translateZ(100px) rotateX(90deg)' : 'perspective(1000px) translateZ(0px) rotateX(0deg)',
+                                            opacity: flippingRowId === s.id ? 0 : 1,
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = isPartyMode ? 'rgba(255,0,255,0.3)' : '#f9f9f9';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = 'transparent';
+                                        }}
+                                    >
+                                        <td style={{ padding: '15px', color: '#333', fontWeight: '500' }}><span style={{ marginRight: '10px', color: '#888' }}>{index + 1}.</span>{s.lastName} {s.firstName}</td>
+                                        <td style={{ padding: '15px', textAlign: 'center', color: '#333', fontWeight: 'bold' }}>{s.finalGrade}</td>
+                                        <td style={{ padding: '15px', textAlign: 'right' }}><span style={{ fontSize: '24px' }}>{getEmoji(s.finalGrade)}</span></td>
+                                    </tr>
+                                );
+                            })}
+
+                            {isFetchingNext && (
+                                <tr>
+                                    <td colSpan="3" style={{ textAlign: 'center', padding: '15px', color: '#888', fontStyle: 'italic' }}>
+                                        ⏳ Se încarcă mai mulți elevi...
+                                    </td>
                                 </tr>
-                            );
-                        })}
+                            )}
 
-                        {/* Mesaj de loading în timp ce aduce paginile noi */}
-                        {isFetchingNext && (
-                            <tr>
-                                <td colSpan="3" style={{ textAlign: 'center', padding: '15px', color: '#888', fontStyle: 'italic' }}>
-                                    ⏳ Se încarcă mai mulți elevi...
-                                </td>
-                            </tr>
-                        )}
-
-                        {!isFetchingNext && sortedAllStudents.length === 0 && (
-                            <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#777' }}>Nu am găsit niciun elev.</td></tr>
-                        )}
+                            {!isFetchingNext && sortedAllStudents.length === 0 && (
+                                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#777' }}>No students found.</td></tr>
+                            )}
                         </tbody>
                     </table>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', fontSize: '14px', color: '#666', borderTop: '1px solid #ddd', paddingTop: '15px', flexWrap: 'wrap', gap: '10px' }}>
-                        <span>Afișăm toți cei {sortedAllStudents.length} elevi încărcați. {hasMore && '(Mai sunt în baza de date...)'}</span>
-                        <div style={{ display: 'flex', gap: '15px' }}><span>Avg: <strong>{classAverageStr}</strong></span><span>Progress: <strong>{classProgressStr}</strong></span></div>
+                        <span>Showing {sortedAllStudents.length > 0 ? '1' : '0'}-{sortedAllStudents.length} of {sortedAllStudents.length} students. {hasMore && '(Mai sunt în baza de date...)'}</span>
+                        <div style={{ display: 'flex', gap: '15px' }}>
+                            <span>Class Average: <strong>{classAverageStr}</strong></span>
+                            <span>Class progress: <strong>{classProgressStr}</strong></span>
+                        </div>
                     </div>
                 </div>
 
-                {/* right: statistics */}
                 <div className="animate-enter" style={{ backgroundColor: isPartyMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.8)', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', overflowX: 'auto', animationDelay: '0.2s', transition: 'background-color 0.5s' }}>
                     {activeTab === 'statistics' ? (
                         <div className="stats-container" style={{ flexWrap: 'wrap', gap: '30px', justifyContent: 'center' }}>
+                            {sortedAllStudents.length > 0 && (
+                                <div style={{ display: 'none' }}>
+                                    {sortedAllStudents[0].lastName} {sortedAllStudents[0].firstName}
+                                </div>
+                            )}
                             <div className="stats-pie-section">
                                 <h3 className="stats-pie-title" style={{ color: isPartyMode ? '#fff' : '#555' }}>Class Grades</h3>
                                 <div className="stats-pie-chart" style={{ background: `conic-gradient(#ffda47 0deg ${endFb}deg, #ffff00 ${endFb}deg ${endB}deg, #ff9900 ${endB}deg ${endS}deg, #ff0000 ${endS}deg 360deg)` }}>
@@ -258,8 +267,13 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                     )}
                 </div>
             </div>
+            <SecurityLogsModal
+                isOpen={isSecurityOpen}
+                onClose={() => setIsSecurityOpen(false)}
+            />
         </div>
     );
 }
+
 
 export default MasterView;

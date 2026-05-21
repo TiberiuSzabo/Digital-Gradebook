@@ -60,7 +60,7 @@ const typeDefs = gql`
     addGrade(studentId: ID!, subjectName: String!, gradeValue: String!): Student
     removeGrade(studentId: ID!, subjectName: String!, gradeIndex: Int!): Student
     
-    # 🚨 MUTAȚIILE NOI PENTRU CRUD ELEVI:
+    # 🚨 SCHIMBARILE NOI PENTRU CRUD ELEVI:
     createStudent(input: StudentInput!): Student
     updateStudent(id: ID!, input: StudentInput!): Student
     deleteStudent(id: ID!): Boolean

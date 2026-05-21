@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="DigitalGradebook.Domain/DigitalGradebook.Domain.csproj" />
+  <Project Path="DigitalGradebook.Repository/DigitalGradebook.Repository.csproj" />
+  <Project Path="DigitalGradebook.Service/DigitalGradebook.Service.csproj" />
+  <Project Path="DigitalGradebook.Tests/DigitalGradebook.Tests.csproj" />
+  <Project Path="DigitalGradebook.WebApi/DigitalGradebook.WebApi.csproj" />
+</Solution>

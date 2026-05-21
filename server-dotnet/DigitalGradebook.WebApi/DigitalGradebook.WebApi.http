@@ -1,0 +1,6 @@
+@DigitalGradebook.WebApi_HostAddress = http://localhost:5241
+
+GET {{DigitalGradebook.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,6 +1,9 @@
 // src/components/DetailedView.jsx
-import React from 'react';
+import React, { useState } from 'react';
+import ChatModal from './ChatModal';
+
 import { useStudentStore } from '../store/useStudentStore';
+import { useAuthStore } from '../store/useAuthStore'; // AM ADĂUGAT: pentru a ști cine trimite mesajul
 import {
     Chart as ChartJS,
     RadialLinearScale,
@@ -14,15 +17,19 @@ import { Radar } from 'react-chartjs-2';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
+// AM ADĂUGAT PARAMETRUL isRestricted AICI
+function DetailedView({ student: initialStudent, onBack, onEdit, onDelete, isRestricted = false }) {
     const students = useStudentStore(state => state.students);
-
     const student = students.find(s => String(s.id) === String(initialStudent?.id)) || initialStudent;
 
     const addGradeToStudent = useStudentStore(state => state.addGradeToStudent);
     const removeGradeFromStudent = useStudentStore(state => state.removeGradeFromStudent);
 
-    const [newGrade, setNewGrade] = React.useState({ subject: 'Math', value: 'FB' });
+    // AM ADĂUGAT: Stările pentru Chat
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const currentUser = useAuthStore(state => state.currentUser);
+
+    const [newGrade, setNewGrade] = useState({ subject: 'Math', value: 'FB' });
 
     if (!student) return null;
 
@@ -138,9 +145,16 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                                 <div><div className="detail-label">CNP</div><div className="detail-value">{student.cnp}</div></div>
                             </div>
                             <div className="detail-actions">
-                                <button className="detail-btn-msg">Send a message</button>
-                                <button className="detail-btn-edit" onClick={onEdit}>Edit</button>
-                                <button className="detail-btn-delete" onClick={onDelete}>Delete</button>
+                                {/* AM ADĂUGAT: onClick ca să deschidă modalul */}
+                                <button className="detail-btn-msg" onClick={() => setIsChatOpen(true)}>Send a message</button>
+
+                                {/* ASCUNDEM EDIT SI DELETE DACA E STUDENT SAU PARINTE */}
+                                {!isRestricted && (
+                                    <>
+                                        <button className="detail-btn-edit" onClick={onEdit}>Edit</button>
+                                        <button className="detail-btn-delete" onClick={onDelete}>Delete</button>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -148,33 +162,36 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                             <div className="detail-subjects-list">
                                 <h3>Grades by Subject</h3>
 
-                                <div className="add-grade-box" style={{ margin: '15px 0', padding: '10px', border: '1px dashed #ccc', borderRadius: '8px' }}>
-                                    <h4 style={{ margin: '0 0 10px 0' }}>Add New Grade</h4>
-                                    <select
-                                        value={newGrade.subject}
-                                        onChange={(e) => setNewGrade({...newGrade, subject: e.target.value})}
-                                        style={{ padding: '5px', marginRight: '5px' }}
-                                    >
-                                        {['Math', 'English', 'Romanian', 'Biology', 'Physical Education', 'Visual Arts', 'Informatics', 'History'].map(sub => (
-                                            <option key={sub} value={sub}>{sub}</option>
-                                        ))}
-                                    </select>
+                                {/* ASCUNDEM FORMULARUL DE ADĂUGARE NOTĂ */}
+                                {!isRestricted && (
+                                    <div className="add-grade-box" style={{ margin: '15px 0', padding: '10px', border: '1px dashed #ccc', borderRadius: '8px' }}>
+                                        <h4 style={{ margin: '0 0 10px 0' }}>Add New Grade</h4>
+                                        <select
+                                            value={newGrade.subject}
+                                            onChange={(e) => setNewGrade({...newGrade, subject: e.target.value})}
+                                            style={{ padding: '5px', marginRight: '5px' }}
+                                        >
+                                            {['Math', 'English', 'Romanian', 'Biology', 'Physical Education', 'Visual Arts', 'Informatics', 'History'].map(sub => (
+                                                <option key={sub} value={sub}>{sub}</option>
+                                            ))}
+                                        </select>
 
-                                    <select
-                                        value={newGrade.value}
-                                        onChange={(e) => setNewGrade({...newGrade, value: e.target.value})}
-                                        style={{ padding: '5px', marginRight: '5px' }}
-                                    >
-                                        {['FB', 'B', 'S', 'I'].map(v => <option key={v} value={v}>{v}</option>)}
-                                    </select>
+                                        <select
+                                            value={newGrade.value}
+                                            onChange={(e) => setNewGrade({...newGrade, value: e.target.value})}
+                                            style={{ padding: '5px', marginRight: '5px' }}
+                                        >
+                                            {['FB', 'B', 'S', 'I'].map(v => <option key={v} value={v}>{v}</option>)}
+                                        </select>
 
-                                    <button
-                                        onClick={handleAddGrade}
-                                        style={{ padding: '5px 10px', backgroundColor: '#3aa76d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                                    >
-                                        Add
-                                    </button>
-                                </div>
+                                        <button
+                                            onClick={handleAddGrade}
+                                            style={{ padding: '5px 10px', backgroundColor: '#3aa76d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                )}
 
                                 <div className="subjects-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {student.subjects && student.subjects.map((sub, idx) => (
@@ -185,11 +202,15 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                                                 sub.grades.map((grade, gradeIndex) => (
                                                     <span key={gradeIndex} style={{ display: 'inline-block', margin: '0 3px', padding: '2px 6px', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '10px', fontSize: '14px' }}>
                                                         {grade}
-                                                        <button
-                                                            onClick={() => handleDeleteGrade(sub.name, gradeIndex)}
-                                                            style={{ color: '#ff4d4d', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px', fontSize: '12px', padding: '0' }}
-                                                            title="Șterge nota"
-                                                        >✕</button>
+
+                                                        {/* ASCUNDEM BUTONUL DE ȘTERGERE NOTĂ */}
+                                                        {!isRestricted && (
+                                                            <button
+                                                                onClick={() => handleDeleteGrade(sub.name, gradeIndex)}
+                                                                style={{ color: '#ff4d4d', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px', fontSize: '12px', padding: '0' }}
+                                                                title="Șterge nota"
+                                                            >✕</button>
+                                                        )}
                                                     </span>
                                                 ))
                                             ) : (
@@ -197,7 +218,6 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                                             )}
 
                                             <span style={{ marginLeft: '5px', color: '#666' }}>
-                                                {/* Afișăm litera (media pe acea materie) generată mai sus */}
                                                 ({subjectStats[sub.name]?.letter || '-'})
                                             </span>
                                         </div>
@@ -221,6 +241,16 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete }) {
                     </div>
                 </div>
             </div>
+
+            <ChatModal
+                isOpen={isChatOpen}
+                onClose={() => setIsChatOpen(false)}
+
+                // FOLOSIM EMAIL-UL CA ROOM ID! (Așa ne asigurăm că toți intră în aceeași cameră)
+                roomIdentifier={student?.email}
+
+                currentUser={currentUser}
+            />
         </div>
     );
 }

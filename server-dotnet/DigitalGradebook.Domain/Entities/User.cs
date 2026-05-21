@@ -1,0 +1,27 @@
+﻿using System;
+
+namespace DigitalGradebook.Domain.Entities
+{
+    public class User
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+
+        public int RoleId { get; set; }
+        public Role Role { get; set; }
+
+        public int? StudentId { get; set; }
+        public Student Student { get; set; }
+
+        // --- SILVER CHALLENGE: 3-Way Auth & Password Recovery ---
+        public string? TwoFactorCode { get; set; }
+        public DateTime? TwoFactorExpiry { get; set; }
+
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
+
+        // 🚨 AL TREILEA FACTOR (3FA): PIN-ul de securitate
+        public string SecurityPin { get; set; } = "1234";
+    }
+}

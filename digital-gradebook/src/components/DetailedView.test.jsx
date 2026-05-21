@@ -7,7 +7,7 @@ const mockStudent = {
     lastName: 'Eminescu',
     firstName: 'Mihai',
     grade: 'FB',
-    email: 'mihai@poezie.ro',
+    email: 'mihai@student.com',
     birthDate: '15/01/1850',
     cnp: '5000115123456',
     username: 'mihaita',

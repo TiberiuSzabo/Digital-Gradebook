@@ -1,0 +1,355 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Me\\SDI\\implementation\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Tests\\DatabaseTests.cs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.Tests\\DatabaseTests.cs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\MasterView.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\components\\MasterView.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\MasterView.test.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\components\\MasterView.test.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\store\\useStudentStore.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\store\\useStudentStore.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\Controllers\\StudentsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.WebApi\\Controllers\\StudentsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\GeneratorEngine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.WebApi\\GeneratorEngine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.WebApi\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\App.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\App.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\StudentForm.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\components\\StudentForm.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\DetailedView.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\components\\DetailedView.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Domain\\Entities\\Student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.Domain\\Entities\\Student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Repository\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.Repository\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Domain\\Entities\\Grade.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.Domain\\Entities\\Grade.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\services\\data.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\services\\data.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\App.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:digital-gradebook\\src\\App.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Service\\StudentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.Service\\StudentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Service\\IStudentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.Service\\IStudentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\DigitalGradebook.WebApi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server-dotnet\\DigitalGradebook.WebApi\\DigitalGradebook.WebApi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DatabaseTests.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Tests\\DatabaseTests.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.Tests\\DatabaseTests.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Tests\\DatabaseTests.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.Tests\\DatabaseTests.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAkwFcAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T21:12:14.535Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MasterView.jsx",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\MasterView.jsx",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\components\\MasterView.jsx",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\MasterView.jsx",
+              "RelativeToolTip": "digital-gradebook\\src\\components\\MasterView.jsx",
+              "ViewState": "AgIAACsAAAAAAAAAAAAkwFEAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-03T20:07:44.863Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MasterView.test.jsx",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\MasterView.test.jsx",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\components\\MasterView.test.jsx",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\MasterView.test.jsx",
+              "RelativeToolTip": "digital-gradebook\\src\\components\\MasterView.test.jsx",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAkwIAAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-03T20:06:20.318Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "StudentsController.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\Controllers\\StudentsController.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.WebApi\\Controllers\\StudentsController.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\Controllers\\StudentsController.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.WebApi\\Controllers\\StudentsController.cs",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAkwHQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:51:45.378Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\Program.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.WebApi\\Program.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\Program.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.WebApi\\Program.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAkwDMAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:20:28.836Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "GeneratorEngine.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\GeneratorEngine.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.WebApi\\GeneratorEngine.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\GeneratorEngine.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.WebApi\\GeneratorEngine.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAkwEoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T18:42:09.325Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "useStudentStore.js",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\store\\useStudentStore.js",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\store\\useStudentStore.js",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\store\\useStudentStore.js",
+              "RelativeToolTip": "digital-gradebook\\src\\store\\useStudentStore.js",
+              "ViewState": "AgIAALIAAAAAAAAAAAAUwMcAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-05-03T14:18:51.905Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "App.jsx",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\App.jsx",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\App.jsx",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\App.jsx",
+              "RelativeToolTip": "digital-gradebook\\src\\App.jsx",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAQwFwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-03T14:13:15.009Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "StudentForm.jsx",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\StudentForm.jsx",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\components\\StudentForm.jsx",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\StudentForm.jsx",
+              "RelativeToolTip": "digital-gradebook\\src\\components\\StudentForm.jsx",
+              "ViewState": "AgIAABcAAAAAAAAAAAAAwBAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-03T16:23:31.687Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "DetailedView.jsx",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\DetailedView.jsx",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\components\\DetailedView.jsx",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\components\\DetailedView.jsx",
+              "RelativeToolTip": "digital-gradebook\\src\\components\\DetailedView.jsx",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAUwJ0AAABXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-05-03T16:23:13.477Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Repository\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.Repository\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Repository\\ApplicationDbContext.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.Repository\\ApplicationDbContext.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAkwDUAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:18:16.288Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Student.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Domain\\Entities\\Student.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.Domain\\Entities\\Student.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Domain\\Entities\\Student.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.Domain\\Entities\\Student.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAADMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:07:00.872Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Grade.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Domain\\Entities\\Grade.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.Domain\\Entities\\Grade.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Domain\\Entities\\Grade.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.Domain\\Entities\\Grade.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:05:04.964Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "index.css",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\index.css",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\index.css",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\index.css",
+              "RelativeToolTip": "digital-gradebook\\src\\index.css",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-05-03T15:13:38.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "data.js",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\services\\data.js",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\services\\data.js",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\services\\data.js",
+              "RelativeToolTip": "digital-gradebook\\src\\services\\data.js",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAkwDMAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-05-03T14:06:15.713Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "App.css",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\App.css",
+              "RelativeDocumentMoniker": "digital-gradebook\\src\\App.css",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\digital-gradebook\\src\\App.css",
+              "RelativeToolTip": "digital-gradebook\\src\\App.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-05-03T14:06:04.86Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "StudentService.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Service\\StudentService.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.Service\\StudentService.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Service\\StudentService.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.Service\\StudentService.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAADwvx4AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:49:08.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "IStudentService.cs",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Service\\IStudentService.cs",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.Service\\IStudentService.cs",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.Service\\IStudentService.cs",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.Service\\IStudentService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T09:48:47.448Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "DigitalGradebook.WebApi.csproj",
+              "DocumentMoniker": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\DigitalGradebook.WebApi.csproj",
+              "RelativeDocumentMoniker": "server-dotnet\\DigitalGradebook.WebApi\\DigitalGradebook.WebApi.csproj",
+              "ToolTip": "C:\\Users\\Me\\SDI\\implementation\\server-dotnet\\DigitalGradebook.WebApi\\DigitalGradebook.WebApi.csproj",
+              "RelativeToolTip": "server-dotnet\\DigitalGradebook.WebApi\\DigitalGradebook.WebApi.csproj",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAUwBsAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-03T09:38:42.413Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
