@@ -1,5 +1,5 @@
 # Etapa de build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # Copiem tot codul
@@ -8,7 +8,7 @@ COPY . ./
 RUN dotnet publish DigitalGradebook.WebApi.csproj -c Release -o out
 
 # Etapa de rulare
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/out .
 
