@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const API_BASE_URL = `https://${window.location.hostname}:5242`;
+const API_BASE_URL = "https://digital-gradebook.onrender.com";
 let inactivityTimer;
 
 export const useAuthStore = create(
@@ -38,7 +38,6 @@ export const useAuthStore = create(
                         body: JSON.stringify({ username: email, password: password })
                     });
 
-                    // 🔴 AICI ERA PROBLEMA: Prindem crash-ul din C# direct, fără să dăm vina pe conexiune
                     const textResponse = await response.text();
                     let data;
                     try {

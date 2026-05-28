@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 
-// AȘA TREBUIE SĂ ARATE LINIA:
-const API_BASE_URL = `https://${window.location.hostname}:5242`;
+const API_BASE_URL = "https://digital-gradebook.onrender.com";
 const API_URL = `${API_BASE_URL}/api/Students`;
 const AUTH_URL = `${API_BASE_URL}/api/Auth/login`;
 
@@ -15,7 +14,6 @@ const saveToOfflineQueue = (action) => {
     localStorage.setItem('offlineQueue', JSON.stringify(queue));
 };
 
-// Funcție ajutătoare pentru a extrage token-ul (funcționează și dacă folosești useAuthStore)
 const getAuthToken = (get) => {
     let token = get().currentUser?.token;
     if (!token) {
@@ -285,7 +283,6 @@ export const useStudentStore = create((set, get) => ({
     initSignalR: () => {
         if (signalRConnection) return;
 
-        // Dacă SignalR are nevoie de token, îl poți adăuga ca accessTokenFactory
         const token = getAuthToken(get);
 
         signalRConnection = new HubConnectionBuilder()
