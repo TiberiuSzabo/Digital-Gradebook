@@ -7,18 +7,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("https://0.0.0.0:5242", "http://0.0.0.0:5241");
+// AM STERS: builder.WebHost.UseUrls(...) - Render se va ocupa de porturi automat
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<DigitalGradebook.Repository.ChatRepository>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=gradebook.db",
     b => b.MigrationsAssembly("DigitalGradebook.Repository")));
-
 builder.Services.AddSingleton<GeneratorState>();
 builder.Services.AddHostedService<GeneratorWorker>();
 builder.Services.AddScoped<DigitalGradebook.Service.IAuditLoggerService, DigitalGradebook.Service.AuditLoggerService>();
@@ -36,13 +34,14 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = true; // Forțează securitatea (HTTPS)
+    // Modificat in false! Render ne ofera HTTPS la exterior, in interior merge pe HTTP
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidateLifetime = true, // Sesiunea expiră după timpul dat în appsettings (30 min)
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
@@ -62,7 +61,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
 await DataSeeder.SeedRolesAndUsersAsync(app.Services);
 
 if (app.Environment.IsDevelopment())
@@ -71,8 +69,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// 🥉 BRONZE CHALLENGE: Redirecționare forțată spre HTTPS
-app.UseHttpsRedirection();
+// AM STERS: app.UseHttpsRedirection(); - Render face deja asta. Aici crapa Kestrel-ul.
 
 app.UseCors("AllowReact");
 
