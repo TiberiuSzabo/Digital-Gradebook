@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization; // ADĂUGAT
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Net;
-using System.Net.Mail;
+using System.Net.Http;
 using DigitalGradebook.Domain.Entities;
 using DigitalGradebook.Repository;
 using DigitalGradebook.Service;
@@ -62,7 +61,7 @@ namespace DigitalGradebook.WebApi.Controllers
                 string subiect = "Codul tau de securitate Digital Gradebook";
                 string mesaj = $"Salutare! Codul tau pentru pasul 2 al autentificarii este: {user.TwoFactorCode}";
 
-                SendRealEmail(user.Username, subiect, mesaj);
+                await SendRealEmail(user.Username, subiect, mesaj);
 
                 Console.WriteLine($"\n=======================================================");
                 Console.WriteLine($"[3FA CONT REAL] Cod generat pentru {user.Username}: {user.TwoFactorCode}");
@@ -166,7 +165,8 @@ namespace DigitalGradebook.WebApi.Controllers
 
             string subiect = "Resetare Parola - Digital Gradebook";
             string mesaj = $"Token-ul tau pentru resetarea parolei este: {user.ResetToken}";
-            SendRealEmail(user.Username, subiect, mesaj);
+
+            await SendRealEmail(user.Username, subiect, mesaj);
 
             return Ok(new { message = "Daca emailul exista in sistem, vei primi un link de resetare." });
         }
@@ -187,32 +187,40 @@ namespace DigitalGradebook.WebApi.Controllers
             return Ok(new { message = "Parola a fost resetata cu succes!" });
         }
 
-        private bool SendRealEmail(string toEmail, string subject, string body)
+        private async Task<bool> SendRealEmail(string toEmail, string subject, string body)
         {
             try
             {
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                using var client = new HttpClient();
+
+                // Cheia ta API de la Brevo
+                client.DefaultRequestHeaders.Add("api-key", "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");
+
+                var requestBody = new
                 {
-                    Port = 587,
-                    Credentials = new NetworkCredential("szaborobert2005@gmail.com", "gqbi kwjq cgpb rqby"),
-                    EnableSsl = true,
+                    sender = new { name = "Digital Gradebook", email = "szaborobert2005@gmail.com" },
+                    to = new[] { new { email = toEmail } },
+                    subject = subject,
+                    htmlContent = $"<p>{body}</p>"
                 };
 
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress("szaborobert2005@gmail.com", "Digital Gradebook Security"),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = false,
-                };
+                var json = System.Text.Json.JsonSerializer.Serialize(requestBody);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
-                mailMessage.To.Add(toEmail);
-                smtpClient.Send(mailMessage);
-                return true;
+                // Trimitem prin HTTP ca sa evitam firewall-ul Render
+                var response = await client.PostAsync("https://api.brevo.com/v3/smtp/email", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[BREVO ERROR]: {error}");
+                }
+
+                return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Eroare trimitere email: {ex.Message}");
+                Console.WriteLine($"Eroare HTTP Email: {ex.Message}");
                 return false;
             }
         }
