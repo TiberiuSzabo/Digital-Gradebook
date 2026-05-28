@@ -17,8 +17,7 @@ const ChatModal = ({ isOpen, onClose, roomIdentifier, currentUser }) => {
 
         let isMounted = true;
         let currentConnection = null;
-        const API_BASE_URL = `https://${window.location.hostname}:5242`;
-
+        const API_BASE_URL = "https://digital-gradebook.onrender.com";
         const startChat = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/Chat/${roomIdentifier}`);

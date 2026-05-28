@@ -8,8 +8,7 @@ const SecurityLogsModal = ({ isOpen, onClose }) => {
     useEffect(() => {
         if (!isOpen) return;
 
-        const API_BASE_URL = `https://${window.location.hostname}:5242`;
-
+        const API_BASE_URL = "https://digital-gradebook.onrender.com";
         fetch(`${API_BASE_URL}/api/Audit/suspicious`)
             .then(res => res.json())
             .then(data => setSuspiciousUsers(data))
