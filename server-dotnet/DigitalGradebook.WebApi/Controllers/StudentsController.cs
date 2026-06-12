@@ -164,6 +164,7 @@ namespace DigitalGradebook.WebApi.Controllers
             student.ParentMom = input.ParentMom;
             student.PhoneMom = input.PhoneMom;
             student.Mentions = input.Mentions;
+            student.ClassYear = input.ClassYear;
 
             try
             {
