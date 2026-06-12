@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DigitalGradebook.Repository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260612145447_InitialCreate")]
+    [Migration("20260612151623_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
