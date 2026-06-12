@@ -3,10 +3,14 @@ import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useMasterView } from '../hooks/useMasterView';
 import { useNavigate } from 'react-router-dom';
 import { useStudentStore } from '../store/useStudentStore';
+import { useAuthStore } from '../store/useAuthStore';
 import SecurityLogsModal from './SecurityLogsModal';
 
-function MasterView({ students = [], onStudentClick, onAddClick }) {
+function MasterView({ students = [], onStudentClick, onAddClick, theme = 'light' }) {
+    const isDark = theme === 'dark';
     const navigate = useNavigate();
+    const currentUser = useAuthStore((state) => state.currentUser);
+    const [classYear, setClassYear] = useState(1);
 
     // --- INFINITE SCROLL STATE TRAS DIN STORE ---
     const isGeneratorRunning = useStudentStore((state) => state.isGeneratorRunning);
@@ -39,11 +43,13 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
     const [isPartyMode, setIsPartyMode] = useState(false);
     const [flippingRowId, setFlippingRowId] = useState(null);
 
+    const filteredStudents = students.filter(s => (s.classYear ?? 1) === classYear);
+
     // Folosim hook-ul tău, dându-i direct students (nu mai avem nevoie de studentsState)
     const {
         activeTab, setActiveTab, getEmoji,
         classAverageStr, classProgressStr
-    } = useMasterView(students);
+    } = useMasterView(filteredStudents);
 
     // --- LOGICA NOUĂ DE SORTARE PENTRU TESTE ---
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -57,7 +63,7 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
     };
 
     const sortedAllStudents = useMemo(() => {
-        let sortable = [...students];
+        let sortable = [...filteredStudents];
         if (sortConfig.key !== null) {
             sortable.sort((a, b) => {
                 // Dacă sortăm după notă, folosim numere ca să știe ordinea corectă
@@ -81,9 +87,9 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
             });
         }
         return sortable;
-    }, [students, sortConfig]);
+    }, [filteredStudents, sortConfig]);
 
-    const studentsWithProblems = students.filter(s => s.finalGrade === 'S' || s.finalGrade === 'I' || s.finalGrade === 'UNKNOWN');
+    const studentsWithProblems = filteredStudents.filter(s => s.finalGrade === 'S' || s.finalGrade === 'I' || s.finalGrade === 'UNKNOWN');
 
     const handleSunClick = () => {
         setClickCount(prev => prev + 1);
@@ -120,7 +126,7 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
     return (
         <div className={`master-container ${isPartyMode ? 'party-mode' : ''} ${weatherClass}`} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', transition: 'all 0.5s ease' }}>
 
-            <div className="animate-enter" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', backgroundColor: isPartyMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', transition: 'background-color 0.5s' }}>
+            <div className="animate-enter" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', backgroundColor: isPartyMode ? 'rgba(0,0,0,0.5)' : (isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.7)'), padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', transition: 'background-color 0.5s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <div
                         className="master-title-icon"
@@ -129,23 +135,32 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                     >
                         {isPartyMode ? '🪩' : '🌞'}
                     </div>
-                    <h2 style={{ margin: 0, color: '#333' }}>Digital Gradebook - My Class</h2>
+                    <h2 style={{ margin: 0, color: isDark ? '#e0e0e0' : '#333' }}>Digital Gradebook - My Class</h2>
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <div className="master-tab-group" style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div className={`master-tab ${activeTab === 'table' ? 'active' : ''}`} onClick={() => setActiveTab('table')}>Warnings</div>
                         <div className={`master-tab ${activeTab === 'statistics' ? 'active' : ''}`} onClick={() => setActiveTab('statistics')}>Statistics</div>
+                        {/* Start/Stop Generator button — disabled
                         <button
                             onClick={() => toggleGenerator(!isGeneratorRunning)}
                             style={{ marginLeft: '6px', padding: '6px 10px', borderRadius: '8px', border: 'none', backgroundColor: isGeneratorRunning ? '#ff6b6b' : '#3aa76d', color: 'white', cursor: 'pointer', fontWeight: '600' }}
                         >
                             {isGeneratorRunning ? 'Stop Generator' : 'Start Generator'}
                         </button>
+                        */}
                     </div>
 
-                    <button className="btn-pulse" onClick={onAddClick} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#ffda47', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>+ New Student</button>
-                    <button onClick={() => navigate('/class-weather')} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#e4f0ad', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>Class Weather</button>
+                    {currentUser?.role === 'Admin' && (
+                        <button className="btn-pulse" onClick={onAddClick} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#ffda47', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>+ New Student</button>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button onClick={() => navigate(`/class-weather?classYear=${classYear}`)} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#e4f0ad', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>Class Weather</button>
+                        <select value={classYear} onChange={(e) => setClassYear(Number(e.target.value))} style={{ padding: '8px 10px', borderRadius: '12px', border: '1px solid #ccc', backgroundColor: '#fff', cursor: 'pointer', fontWeight: 'bold', color: '#333' }}>
+                            {[1,2,3,4,5,6,7,8].map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                    </div>
                     <button
                         onClick={() => setIsSecurityOpen(true)}
                         style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#dc3545', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white' }}
@@ -157,17 +172,17 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '20px', alignItems: 'start' }}>
 
-                <div className="animate-enter" style={{ backgroundColor: isPartyMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.8)', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', overflowX: 'auto', animationDelay: '0.1s', transition: 'background-color 0.5s' }}>
+                <div className="animate-enter" style={{ backgroundColor: isPartyMode ? 'rgba(0,0,0,0.3)' : (isDark ? '#1e1e1e' : 'rgba(255,255,255,0.8)'), padding: '20px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', overflowX: 'auto', animationDelay: '0.1s', transition: 'background-color 0.5s' }}>
                     <table className="master-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
                         <thead>
                             <tr>
-                                <th onClick={() => requestSort('lastName')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'left', borderBottom: '2px solid #ccc', color: '#555' }}>
+                                <th onClick={() => requestSort('lastName')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'left', borderBottom: `2px solid ${isDark ? '#444' : '#ccc'}`, color: isDark ? '#aaa' : '#555' }}>
                                     Name {sortConfig.key === 'lastName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↑↓'}
                                 </th>
-                                <th onClick={() => requestSort('finalGrade')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'center', borderBottom: '2px solid #ccc', color: '#555' }}>
+                                <th onClick={() => requestSort('finalGrade')} style={{ cursor: 'pointer', padding: '15px', textAlign: 'center', borderBottom: `2px solid ${isDark ? '#444' : '#ccc'}`, color: isDark ? '#aaa' : '#555' }}>
                                     Final Grade {sortConfig.key === 'finalGrade' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↑↓'}
                                 </th>
-                                <th style={{ padding: '15px', borderBottom: '2px solid #ccc' }}></th>
+                                <th style={{ padding: '15px', borderBottom: `2px solid ${isDark ? '#444' : '#ccc'}` }}></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -187,14 +202,14 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                                             opacity: flippingRowId === s.id ? 0 : 1,
                                         }}
                                         onMouseEnter={(e) => {
-                                            if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = isPartyMode ? 'rgba(255,0,255,0.3)' : '#f9f9f9';
+                                            if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = isPartyMode ? 'rgba(255,0,255,0.3)' : (isDark ? '#2a2a2a' : '#f9f9f9');
                                         }}
                                         onMouseLeave={(e) => {
                                             if (flippingRowId !== s.id) e.currentTarget.style.backgroundColor = 'transparent';
                                         }}
                                     >
-                                        <td style={{ padding: '15px', color: '#333', fontWeight: '500' }}><span style={{ marginRight: '10px', color: '#888' }}>{index + 1}.</span>{s.lastName} {s.firstName}</td>
-                                        <td style={{ padding: '15px', textAlign: 'center', color: '#333', fontWeight: 'bold' }}>{s.finalGrade}</td>
+                                        <td style={{ padding: '15px', color: isDark ? '#e0e0e0' : '#333', fontWeight: '500' }}><span style={{ marginRight: '10px', color: isDark ? '#777' : '#888' }}>{index + 1}.</span>{s.lastName} {s.firstName}</td>
+                                        <td style={{ padding: '15px', textAlign: 'center', color: isDark ? '#e0e0e0' : '#333', fontWeight: 'bold' }}>{s.finalGrade}</td>
                                         <td style={{ padding: '15px', textAlign: 'right' }}><span style={{ fontSize: '24px' }}>{getEmoji(s.finalGrade)}</span></td>
                                     </tr>
                                 );
@@ -214,7 +229,7 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                         </tbody>
                     </table>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', fontSize: '14px', color: '#666', borderTop: '1px solid #ddd', paddingTop: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', fontSize: '14px', color: isDark ? '#aaa' : '#666', borderTop: `1px solid ${isDark ? '#444' : '#ddd'}`, paddingTop: '15px', flexWrap: 'wrap', gap: '10px' }}>
                         <span>Showing {sortedAllStudents.length > 0 ? '1' : '0'}-{sortedAllStudents.length} of {sortedAllStudents.length} students. {hasMore && '(Mai sunt în baza de date...)'}</span>
                         <div style={{ display: 'flex', gap: '15px' }}>
                             <span>Class Average: <strong>{classAverageStr}</strong></span>
@@ -223,7 +238,7 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                     </div>
                 </div>
 
-                <div className="animate-enter" style={{ backgroundColor: isPartyMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.8)', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', overflowX: 'auto', animationDelay: '0.2s', transition: 'background-color 0.5s' }}>
+                <div className="animate-enter" style={{ backgroundColor: isPartyMode ? 'rgba(0,0,0,0.3)' : (isDark ? '#1e1e1e' : 'rgba(255,255,255,0.8)'), padding: '20px', borderRadius: '15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', overflowX: 'auto', animationDelay: '0.2s', transition: 'background-color 0.5s' }}>
                     {activeTab === 'statistics' ? (
                         <div className="stats-container" style={{ flexWrap: 'wrap', gap: '30px', justifyContent: 'center' }}>
                             {sortedAllStudents.length > 0 && (
@@ -246,17 +261,17 @@ function MasterView({ students = [], onStudentClick, onAddClick }) {
                         </div>
                     ) : (
                         <div>
-                            <h3 style={{ color: isPartyMode ? '#fff' : '#333', marginTop: 0, marginBottom: '20px', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>⚠️ Students with problems</h3>
+                            <h3 style={{ color: isPartyMode ? '#fff' : (isDark ? '#e0e0e0' : '#333'), marginTop: 0, marginBottom: '20px', borderBottom: `2px solid ${isDark ? '#444' : '#ccc'}`, paddingBottom: '10px' }}>⚠️ Students with problems</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                 {studentsWithProblems.length === 0 ? (
                                     <p style={{ color: '#777', fontStyle: 'italic', textAlign: 'center' }}>All students are doing great! 🎉</p>
                                 ) : (
                                     studentsWithProblems.map(student => (
-                                        <div key={student.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', backgroundColor: isPartyMode ? 'rgba(0,0,0,0.5)' : '#fff', padding: '15px', borderRadius: '10px', borderLeft: `5px solid ${student.finalGrade === 'I' ? '#ff6b6b' : '#ffda47'}`, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                        <div key={student.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', backgroundColor: isPartyMode ? 'rgba(0,0,0,0.5)' : (isDark ? '#2a2a2a' : '#fff'), padding: '15px', borderRadius: '10px', borderLeft: `5px solid ${student.finalGrade === 'I' ? '#ff6b6b' : '#ffda47'}`, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                                             <div style={{ fontSize: '30px' }}>{getEmoji(student.finalGrade)}</div>
                                             <div style={{ flex: 1 }}>
-                                                <h4 style={{ margin: '0 0 5px 0', color: isPartyMode ? '#fff' : '#333' }}>{student.lastName} {student.firstName} (Nota {student.finalGrade})</h4>
-                                                <p style={{ margin: 0, fontSize: '12px', color: isPartyMode ? '#ccc' : '#666' }}>{student.mentions || 'Needs attention.'}</p>
+                                                <h4 style={{ margin: '0 0 5px 0', color: isPartyMode ? '#fff' : (isDark ? '#e0e0e0' : '#333') }}>{student.lastName} {student.firstName} (Nota {student.finalGrade})</h4>
+                                                <p style={{ margin: 0, fontSize: '12px', color: isPartyMode ? '#ccc' : (isDark ? '#aaa' : '#666') }}>{student.mentions || 'Needs attention.'}</p>
                                             </div>
                                             <button onClick={() => handleRowClick(student)} style={{ padding: '8px 15px', borderRadius: '8px', border: 'none', backgroundColor: '#e4f0ad', color: '#333', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>View Details</button>
                                         </div>

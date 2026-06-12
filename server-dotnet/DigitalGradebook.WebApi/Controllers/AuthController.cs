@@ -5,14 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Net.Http;
 using DigitalGradebook.Domain.Entities;
 using DigitalGradebook.Repository;
 using DigitalGradebook.Service;
+using BCrypt.Net;
 
 namespace DigitalGradebook.WebApi.Controllers
 {
-    // 🔓 DESCHIDEM CONTROLLERUL: Oricine (chiar și fără token) trebuie să poată accesa rutele de Login și Register.
     [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
@@ -21,30 +20,32 @@ namespace DigitalGradebook.WebApi.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IAuditLoggerService _auditLogger;
         private readonly IConfiguration _config;
+        private readonly HttpClient _httpClient;
 
-        public AuthController(ApplicationDbContext context, IAuditLoggerService auditLogger, IConfiguration config)
+        public AuthController(ApplicationDbContext context, IAuditLoggerService auditLogger, IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _auditLogger = auditLogger;
             _config = config;
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (request.Username.Contains("'") || request.Username.Contains("OR 1=1") || request.Username.Contains("--"))
-            {
-                await _auditLogger.FlagSuspiciousUserAsync("UNKNOWN", request.Username, "HACKER", "Tentativa de SQL Injection la Login");
-                return Unauthorized(new { message = "Email sau parola incorecta!" });
-            }
+            // EF Core parametrizează automat toate query-urile — nu e nevoie de filtrare manuală.
+            // Căutăm userul după username.
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == request.Username);
 
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == request.Username);
-
-            if (user == null || user.Password != request.Password)
+            // Verificăm parola cu BCrypt. BCrypt.Verify e constant-time, deci nu e vulnerabil la timing attacks.
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 if (user != null)
                 {
-                    await _auditLogger.FlagSuspiciousUserAsync(user.Id.ToString(), user.Username, user.Role.Name, "Parola gresita.");
+                    await _auditLogger.FlagSuspiciousUserAsync(
+                        user.Id.ToString(), user.Username, user.Role.Name, "Parola gresita.");
                 }
                 return Unauthorized(new { message = "Email sau parola incorecta!" });
             }
@@ -54,14 +55,16 @@ namespace DigitalGradebook.WebApi.Controllers
 
             if (isRealEmail)
             {
-                user.TwoFactorCode = new Random().Next(100000, 999999).ToString();
-                user.TwoFactorExpiry = DateTime.Now.AddMinutes(5);
+                // Folosim RandomNumberGenerator în loc de Random — este criptografic sigur
+                user.TwoFactorCode = System.Security.Cryptography.RandomNumberGenerator
+                    .GetInt32(100000, 999999).ToString();
+                user.TwoFactorExpiry = DateTime.UtcNow.AddMinutes(5);
                 await _context.SaveChangesAsync();
 
                 string subiect = "Codul tau de securitate Digital Gradebook";
                 string mesaj = $"Salutare! Codul tau pentru pasul 2 al autentificarii este: {user.TwoFactorCode}";
 
-                await SendRealEmail(user.Username, subiect, mesaj);
+                await SendEmailViaBrevo(user.Username, subiect, mesaj);
 
                 Console.WriteLine($"\n=======================================================");
                 Console.WriteLine($"[3FA CONT REAL] Cod generat pentru {user.Username}: {user.TwoFactorCode}");
@@ -72,7 +75,6 @@ namespace DigitalGradebook.WebApi.Controllers
             else
             {
                 var token = GenerateJwtToken(user);
-
                 await _auditLogger.LogActionAsync(user.Id.ToString(), user.Role.Name, "Logare directa pentru domeniu simulat.");
 
                 return Ok(new
@@ -99,7 +101,8 @@ namespace DigitalGradebook.WebApi.Controllers
             var newUser = new User
             {
                 Username = request.Email,
-                Password = request.Password,
+                // Hash-uim parola înainte de a o salva
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 RoleId = role.Id
             };
 
@@ -114,9 +117,11 @@ namespace DigitalGradebook.WebApi.Controllers
         [HttpPost("verify-2fa")]
         public async Task<IActionResult> Verify2FA([FromBody] Verify2FARequest request)
         {
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == request.Username);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == request.Username);
 
-            if (user == null || user.TwoFactorCode != request.Code || user.TwoFactorExpiry < DateTime.Now)
+            if (user == null || user.TwoFactorCode != request.Code || user.TwoFactorExpiry < DateTime.UtcNow)
             {
                 return Unauthorized(new { message = "Codul de securitate este invalid sau a expirat!" });
             }
@@ -125,7 +130,7 @@ namespace DigitalGradebook.WebApi.Controllers
             user.TwoFactorExpiry = null;
             await _context.SaveChangesAsync();
 
-            await _auditLogger.LogActionAsync(user.Id.ToString(), user.Role.Name, "A trecut de pasul de email.");
+            await _auditLogger.LogActionAsync(user.Id.ToString(), user.Role.Name, "A trecut de pasul de email 2FA.");
 
             return Ok(new { requiresPin = true, message = "Cod corect. Introduceti PIN-ul de securitate." });
         }
@@ -133,9 +138,17 @@ namespace DigitalGradebook.WebApi.Controllers
         [HttpPost("verify-pin")]
         public async Task<IActionResult> VerifyPin([FromBody] VerifyPinRequest request)
         {
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == request.Username);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == request.Username);
 
-            if (user == null || user.SecurityPin != request.Pin)
+            if (user == null) return Unauthorized(new { message = "Utilizatorul nu a fost găsit!" });
+
+            // Dacă hash-ul e gol, PIN-ul nu a fost configurat încă
+            if (string.IsNullOrEmpty(user.SecurityPinHash))
+                return Ok(new { requiresPinSetup = true, message = "Trebuie să configurați un PIN de securitate înainte de autentificare." });
+
+            if (!BCrypt.Net.BCrypt.Verify(request.Pin, user.SecurityPinHash))
             {
                 return Unauthorized(new { message = "PIN-ul de securitate este incorect!" });
             }
@@ -157,16 +170,18 @@ namespace DigitalGradebook.WebApi.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-            if (user == null) return Ok(new { message = "Daca emailul exista in sistem, vei primi un link de resetare." });
 
-            user.ResetToken = Guid.NewGuid().ToString().Substring(0, 8);
-            user.ResetTokenExpiry = DateTime.Now.AddHours(1);
+            // Răspundem mereu cu același mesaj — nu dezvăluim dacă emailul există sau nu
+            if (user == null)
+                return Ok(new { message = "Daca emailul exista in sistem, vei primi un link de resetare." });
+
+            user.ResetToken = Guid.NewGuid().ToString().Replace("-", "")[..8];
+            user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
             await _context.SaveChangesAsync();
 
             string subiect = "Resetare Parola - Digital Gradebook";
             string mesaj = $"Token-ul tau pentru resetarea parolei este: {user.ResetToken}";
-
-            await SendRealEmail(user.Username, subiect, mesaj);
+            await SendEmailViaBrevo(user.Username, subiect, mesaj);
 
             return Ok(new { message = "Daca emailul exista in sistem, vei primi un link de resetare." });
         }
@@ -174,12 +189,14 @@ namespace DigitalGradebook.WebApi.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username && u.ResetToken == request.Token);
+            var user = await _context.Users.FirstOrDefaultAsync(
+                u => u.Username == request.Username && u.ResetToken == request.Token);
 
-            if (user == null || user.ResetTokenExpiry < DateTime.Now)
+            if (user == null || user.ResetTokenExpiry < DateTime.UtcNow)
                 return BadRequest(new { message = "Token invalid sau expirat!" });
 
-            user.Password = request.NewPassword;
+            // Hash-uim noua parolă înainte de salvare
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             user.ResetToken = null;
             user.ResetTokenExpiry = null;
             await _context.SaveChangesAsync();
@@ -187,28 +204,33 @@ namespace DigitalGradebook.WebApi.Controllers
             return Ok(new { message = "Parola a fost resetata cu succes!" });
         }
 
-        private async Task<bool> SendRealEmail(string toEmail, string subject, string body)
+        // -----------------------------------------------------------------------
+        // Trimitere email prin Brevo API — cheia vine din appsettings / env vars
+        // -----------------------------------------------------------------------
+        private async Task<bool> SendEmailViaBrevo(string toEmail, string subject, string body)
         {
             try
             {
-                using var client = new HttpClient();
+                var emailSettings = _config.GetSection("EmailSettings");
+                var apiKey = emailSettings["BrevoApiKey"];
+                var senderEmail = emailSettings["SenderEmail"];
+                var senderName = emailSettings["SenderName"];
 
-                // Cheia ta API de la Brevo
-                client.DefaultRequestHeaders.Add("api-key", "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");
+                _httpClient.DefaultRequestHeaders.Remove("api-key");
+                _httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
 
                 var requestBody = new
                 {
-                    sender = new { name = "Digital Gradebook", email = "szaborobert2005@gmail.com" },
+                    sender = new { name = senderName, email = senderEmail },
                     to = new[] { new { email = toEmail } },
                     subject = subject,
                     htmlContent = $"<p>{body}</p>"
                 };
 
                 var json = System.Text.Json.JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // Trimitem prin HTTP ca sa evitam firewall-ul Render
-                var response = await client.PostAsync("https://api.brevo.com/v3/smtp/email", content);
+                var response = await _httpClient.PostAsync("https://api.brevo.com/v3/smtp/email", content);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -220,9 +242,55 @@ namespace DigitalGradebook.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Eroare HTTP Email: {ex.Message}");
+                Console.WriteLine($"Eroare trimitere email: {ex.Message}");
                 return false;
             }
+        }
+
+        // -----------------------------------------------------------------------
+        // Generare token JWT
+        // -----------------------------------------------------------------------
+        [Authorize]
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            var username = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                ?? User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (username == null) return Unauthorized();
+
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user == null) return Unauthorized();
+
+            var newToken = GenerateJwtToken(user);
+            await _auditLogger.LogActionAsync(user.Id.ToString(), user.Role.Name, "Token reînnoit prin /refresh.");
+
+            return Ok(new { token = newToken });
+        }
+
+        [HttpPost("setup-pin")]
+        public async Task<IActionResult> SetupPin([FromBody] SetupPinRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+
+            if (user == null)
+                return NotFound(new { message = "Utilizatorul nu a fost găsit." });
+
+            if (!string.IsNullOrEmpty(user.SecurityPinHash))
+                return BadRequest(new { message = "PIN-ul a fost deja configurat. Folosiți resetarea contului." });
+
+            if (request.Pin.Length < 4 || request.Pin.Length > 8 || !request.Pin.All(char.IsDigit))
+                return BadRequest(new { message = "PIN-ul trebuie să conțină între 4 și 8 cifre." });
+
+            user.SecurityPinHash = BCrypt.Net.BCrypt.HashPassword(request.Pin);
+            await _context.SaveChangesAsync();
+
+            await _auditLogger.LogActionAsync(user.Id.ToString(), "SYSTEM", "PIN de securitate configurat pentru prima dată.");
+
+            return Ok(new { message = "PIN-ul a fost setat cu succes! Vă puteți autentifica acum." });
         }
 
         private string GenerateJwtToken(User user)
@@ -231,7 +299,7 @@ namespace DigitalGradebook.WebApi.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Username),
                 new Claim(ClaimTypes.Role, user.Role.Name),
@@ -239,11 +307,14 @@ namespace DigitalGradebook.WebApi.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            if (user.StudentId.HasValue)
+                claims.Add(new Claim("StudentId", user.StudentId.Value.ToString()));
+
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(double.Parse(jwtSettings["ExpirationMinutes"]!)),
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpirationMinutes"]!)),
                 signingCredentials: creds
             );
 
@@ -251,10 +322,11 @@ namespace DigitalGradebook.WebApi.Controllers
         }
     }
 
-    public class LoginRequest { public string Username { get; set; } public string Password { get; set; } }
-    public class RegisterRequest { public string Name { get; set; } public string Email { get; set; } public string Password { get; set; } public string Role { get; set; } }
-    public class Verify2FARequest { public string Username { get; set; } public string Code { get; set; } }
-    public class VerifyPinRequest { public string Username { get; set; } public string Pin { get; set; } }
-    public class ForgotPasswordRequest { public string Username { get; set; } }
-    public class ResetPasswordRequest { public string Username { get; set; } public string Token { get; set; } public string NewPassword { get; set; } }
+    public class LoginRequest { public string Username { get; set; } = string.Empty; public string Password { get; set; } = string.Empty; }
+    public class RegisterRequest { public string Name { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; public string Password { get; set; } = string.Empty; public string Role { get; set; } = string.Empty; }
+    public class Verify2FARequest { public string Username { get; set; } = string.Empty; public string Code { get; set; } = string.Empty; }
+    public class VerifyPinRequest { public string Username { get; set; } = string.Empty; public string Pin { get; set; } = string.Empty; }
+    public class ForgotPasswordRequest { public string Username { get; set; } = string.Empty; }
+    public class ResetPasswordRequest { public string Username { get; set; } = string.Empty; public string Token { get; set; } = string.Empty; public string NewPassword { get; set; } = string.Empty; }
+    public class SetupPinRequest { public string Username { get; set; } = string.Empty; public string Pin { get; set; } = string.Empty; }
 }

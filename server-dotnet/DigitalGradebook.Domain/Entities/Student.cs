@@ -53,6 +53,8 @@ namespace DigitalGradebook.Domain.Entities
 
         public string Mentions { get; set; } = string.Empty;
 
+        public int? ClassYear { get; set; } = 1;
+
         // Navigation Property: Relația 1-la-Mai-Mulți către Note
         public virtual ICollection<Grade> Grades { get; set; } = new List<Grade>();
     }

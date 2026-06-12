@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Authorization; // ADĂUGAT pentru [Authorize]
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DigitalGradebook.Domain.Entities;
 using DigitalGradebook.Repository;
 using DigitalGradebook.WebApi;
-using DigitalGradebook.Service; 
+using DigitalGradebook.Service;
+using System.Security.Claims;
 
 namespace DigitalGradebook.WebApi.Controllers
 {
@@ -19,14 +20,13 @@ namespace DigitalGradebook.WebApi.Controllers
         public bool IsRunning { get; set; }
     }
 
-    // 🔒 SECURIZĂM CONTROLLERUL: Oricine vrea acces aici trebuie să aibă un Token JWT valid
-    [Authorize] 
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StudentsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IAuditLoggerService _auditLogger; 
+        private readonly IAuditLoggerService _auditLogger;
 
         public StudentsController(ApplicationDbContext context, IAuditLoggerService auditLogger)
         {
@@ -34,89 +34,158 @@ namespace DigitalGradebook.WebApi.Controllers
             _auditLogger = auditLogger;
         }
 
-        // 🔒 PERMISIUNE: Teacher, Student, Parent (Toți pot vedea lista)
+        // Metodă helper pentru a extrage din JWT ID-ul și Rolul fără să le hardcodăm
+        private (string UserId, string Role) GetCurrentUserClaims()
+        {
+            var userId = User.FindFirst("UserId")?.Value ?? "UNKNOWN_ID";
+            var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "UNKNOWN_ROLE";
+            return (userId, role);
+        }
+
         [Authorize(Roles = "Teacher,Student,Parent")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
+        public async Task<ActionResult<IEnumerable<StudentDto>>> GetStudents()
         {
-            return await _context.Students.Include(s => s.Grades).ToListAsync();
+            var (_, role) = GetCurrentUserClaims();
+
+            if (role == "Teacher")
+            {
+                var all = await _context.Students.Include(s => s.Grades).ToListAsync();
+                return Ok(all.Select(s => s.ToDto()));
+            }
+
+            var studentIdClaim = User.FindFirst("StudentId")?.Value;
+            if (studentIdClaim == null) return Forbid();
+
+            var studentId = int.Parse(studentIdClaim);
+            var own = await _context.Students.Include(s => s.Grades).FirstOrDefaultAsync(s => s.Id == studentId);
+            if (own == null) return NotFound();
+
+            return Ok(new List<StudentDto> { own.ToDto() });
         }
 
-        // 🔒 PERMISIUNE: Teacher, Student, Parent (Toți pot vedea un elev anume)
         [Authorize(Roles = "Teacher,Student,Parent")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(int id)
+        public async Task<ActionResult<StudentDto>> GetStudent(int id)
         {
+            var (_, role) = GetCurrentUserClaims();
+
+            if (role != "Teacher")
+            {
+                var studentIdClaim = User.FindFirst("StudentId")?.Value;
+                if (studentIdClaim == null || int.Parse(studentIdClaim) != id)
+                    return Forbid();
+            }
+
             var student = await _context.Students.Include(s => s.Grades).FirstOrDefaultAsync(s => s.Id == id);
             if (student == null) return NotFound();
-            return student;
+            return Ok(student.ToDto());
         }
 
-        // 🔒 PERMISIUNE: DOAR Teacher (Elevii și Părinții nu pot adăuga elevi noi)
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Student>> PostStudent(Student student)
+        public async Task<ActionResult<StudentDto>> PostStudent([FromBody] StudentInputDto input)
         {
-            _context.Students.Add(student);
-            await _context.SaveChangesAsync();
-
-            var studentRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Student");
-            var parentRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Parent");
-
-            if (studentRole != null && !string.IsNullOrEmpty(student.Email))
+            var student = new Student
             {
-                _context.Users.Add(new User
+                LastName = input.LastName,
+                FirstName = input.FirstName,
+                Email = input.Email,
+                BirthDate = input.BirthDate,
+                Cnp = input.Cnp,
+                Username = input.Username,
+                UniqueNumber = input.UniqueNumber,
+                ParentDad = input.ParentDad,
+                PhoneDad = input.PhoneDad,
+                ParentMom = input.ParentMom,
+                PhoneMom = input.PhoneMom,
+                Mentions = input.Mentions
+            };
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Students.Add(student);
+                await _context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(student.Email))
                 {
-                    Username = student.Email,
-                    Password = student.FirstName,
-                    RoleId = studentRole.Id,
-                    StudentId = student.Id
-                });
+                    var studentRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Student");
+                    var parentRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Parent");
+
+                    if (studentRole != null && parentRole != null)
+                    {
+                        var (studentUser, parentUser, studentPwd, parentPwd, pin) =
+                            StudentAccountHelper.CreateAccounts(student, studentRole, parentRole);
+
+                        _context.Users.AddRange(studentUser, parentUser);
+                        await _context.SaveChangesAsync();
+
+                        Console.WriteLine($"\n[CONTURI ELEV] Student: {student.Email} / Parola: {studentPwd}  |  PIN 3FA: {pin}");
+                        Console.WriteLine($"[CONTURI ELEV] Parinte: {parentUser.Username} / Parola: {parentPwd}  |  PIN 3FA: {pin}\n");
+                    }
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
             }
 
-            if (parentRole != null && !string.IsNullOrEmpty(student.Email))
-            {
-                var prefixEmail = student.Email.Split('@')[0];
-                var emailParinte = "parent_" + prefixEmail + "@parent.com";
-
-                _context.Users.Add(new User
-                {
-                    Username = emailParinte,
-                    Password = student.FirstName,
-                    RoleId = parentRole.Id,
-                    StudentId = student.Id
-                });
-            }
-            await _context.SaveChangesAsync();
-
+            var claims = GetCurrentUserClaims();
             await _auditLogger.LogActionAsync(
-                userId: "TEACHER_ACTION",
-                role: "ADMIN",
+                userId: claims.UserId,
+                role: claims.Role,
                 actionInformation: $"A adăugat un elev nou în sistem: {student.LastName} {student.FirstName} (ID: {student.Id})"
             );
 
-            return CreatedAtAction("GetStudent", new { id = student.Id }, student);
+            return CreatedAtAction("GetStudent", new { id = student.Id }, student.ToDto());
         }
 
-        // 🔒 PERMISIUNE: DOAR Teacher
         [Authorize(Roles = "Teacher")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStudent(int id, [FromBody] Student student)
+        public async Task<IActionResult> UpdateStudent(int id, [FromBody] StudentInputDto input)
         {
-            if (id != student.Id) return BadRequest();
-            _context.Entry(student).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == id);
+            if (student == null) return NotFound();
 
+            student.LastName = input.LastName;
+            student.FirstName = input.FirstName;
+            student.Email = input.Email;
+            student.BirthDate = input.BirthDate;
+            student.Cnp = input.Cnp;
+            student.Username = input.Username;
+            student.UniqueNumber = input.UniqueNumber;
+            student.ParentDad = input.ParentDad;
+            student.PhoneDad = input.PhoneDad;
+            student.ParentMom = input.ParentMom;
+            student.PhoneMom = input.PhoneMom;
+            student.Mentions = input.Mentions;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.Students.AnyAsync(e => e.Id == id))
+                    return NotFound();
+                else
+                    throw;
+            }
+
+            var claims = GetCurrentUserClaims();
             await _auditLogger.LogActionAsync(
-                userId: "TEACHER_ACTION",
-                role: "ADMIN",
+                userId: claims.UserId,
+                role: claims.Role,
                 actionInformation: $"A modificat detaliile elevului cu ID-ul {id}."
             );
 
             return NoContent();
         }
 
-        // 🔒 PERMISIUNE: DOAR Teacher
         [Authorize(Roles = "Teacher")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
@@ -127,31 +196,35 @@ namespace DigitalGradebook.WebApi.Controllers
                 return NotFound();
             }
 
-            var associatedGrades = await _context.Grades.Where(g => g.StudentId == id).ToListAsync();
-            if (associatedGrades.Any())
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                _context.Grades.RemoveRange(associatedGrades);
+                var associatedGrades = await _context.Grades.Where(g => g.StudentId == id).ToListAsync();
+                if (associatedGrades.Any()) _context.Grades.RemoveRange(associatedGrades);
+
+                var associatedUsers = await _context.Users.Where(u => u.StudentId == id).ToListAsync();
+                if (associatedUsers.Any()) _context.Users.RemoveRange(associatedUsers);
+
+                _context.Students.Remove(student);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
             }
 
-            var associatedUsers = await _context.Users.Where(u => u.StudentId == id).ToListAsync();
-            if (associatedUsers.Any())
-            {
-                _context.Users.RemoveRange(associatedUsers);
-            }
-
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
-
+            var claims = GetCurrentUserClaims();
             await _auditLogger.LogActionAsync(
-                userId: "TEACHER_ACTION",
-                role: "ADMIN",
+                userId: claims.UserId,
+                role: claims.Role,
                 actionInformation: $"A șters definitiv elevul {student.LastName} {student.FirstName} (ID: {id}) și conturile asociate."
             );
 
             return NoContent();
         }
 
-        // 🔒 PERMISIUNE: DOAR Teacher (Doar profii adaugă note)
         [Authorize(Roles = "Teacher")]
         [HttpPost("{id}/grades")]
         public async Task<IActionResult> AddGrade(int id, [FromBody] GradeInput input)
@@ -169,16 +242,17 @@ namespace DigitalGradebook.WebApi.Controllers
             _context.Grades.Add(newGrade);
             await _context.SaveChangesAsync();
 
+            var claims = GetCurrentUserClaims();
             await _auditLogger.LogActionAsync(
-                userId: "TEACHER_ACTION",
-                role: "ADMIN",
+                userId: claims.UserId,
+                role: claims.Role,
                 actionInformation: $"A adăugat nota {input.GradeValue} la materia {input.SubjectName} pentru elevul {student.LastName} {student.FirstName} (ID: {id})."
             );
 
-            return Ok(student);
+            var updated = await _context.Students.Include(s => s.Grades).FirstOrDefaultAsync(s => s.Id == id);
+            return Ok(updated!.ToDto());
         }
 
-        // 🔒 PERMISIUNE: DOAR Teacher
         [Authorize(Roles = "Teacher")]
         [HttpDelete("{id}/grades/{subjectName}/{gradeIndex}")]
         public async Task<IActionResult> RemoveGrade(int id, string subjectName, int gradeIndex)
@@ -193,27 +267,141 @@ namespace DigitalGradebook.WebApi.Controllers
                 _context.Grades.Remove(deletedGrade);
                 await _context.SaveChangesAsync();
 
+                var claims = GetCurrentUserClaims();
                 await _auditLogger.LogActionAsync(
-                    userId: "TEACHER_ACTION",
-                    role: "ADMIN",
+                    userId: claims.UserId,
+                    role: claims.Role,
                     actionInformation: $"A șters nota {deletedGrade.Value} la materia {subjectName} pentru elevul cu ID: {id}."
                 );
             }
             return Ok();
         }
 
-        // 🔒 PERMISIUNE: DOAR Teacher
+        [Authorize(Roles = "Teacher,Student,Parent,Admin")]
+        [HttpGet("class/{classYear}")]
+        public async Task<ActionResult<IEnumerable<StudentDto>>> GetStudentsByClass(int classYear)
+        {
+            var students = await _context.Students
+                .Include(s => s.Grades)
+                .Where(s => s.ClassYear == classYear)
+                .ToListAsync();
+            return Ok(students.Select(s => s.ToDto()));
+        }
+
+        [Authorize(Roles = "Teacher,Student,Parent,Admin")]
+        [HttpGet("problems/{classYear}")]
+        public async Task<IActionResult> GetProblems(int classYear)
+        {
+            var gradeWeight = new Dictionary<string, double>
+            {
+                { "FB", 4 }, { "B", 3 }, { "S", 2 }, { "I", 1 }
+            };
+
+            var badgeOpposites = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "bully", "pacificator" }, { "murdar", "gospodar" },
+                { "lenes", "steaaclasei" }, { "mincinos", "coleganadejde" },
+                { "dependenttelefon", "ecologist" }, { "obraznic", "cititorinrait" }
+            };
+
+            var badBadgeTypes = new HashSet<string>(badgeOpposites.Keys, StringComparer.OrdinalIgnoreCase);
+
+            var students = await _context.Students
+                .Include(s => s.Grades)
+                .Where(s => s.ClassYear == classYear)
+                .ToListAsync();
+
+            var studentIds = students.Select(s => s.Id).ToList();
+            var allBadges = await _context.Badges
+                .Where(b => studentIds.Contains(b.StudentId))
+                .ToListAsync();
+
+            var badgesByStudent = allBadges
+                .GroupBy(b => b.StudentId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            static double SubjectAvg(Student s, string subject,
+                Dictionary<string, double> weights)
+            {
+                var vals = s.Grades
+                    .Where(g => g.SubjectName == subject && weights.ContainsKey(g.Value))
+                    .Select(g => weights[g.Value])
+                    .ToList();
+                return vals.Count > 0 ? vals.Average() : 0;
+            }
+
+            var result = new List<object>();
+
+            foreach (var student in students)
+            {
+                var studentBadges = badgesByStudent.GetValueOrDefault(student.Id, new List<Badge>());
+                var problemBadges = studentBadges
+                    .Where(b => badBadgeTypes.Contains(b.Type))
+                    .Select(b => b.Type)
+                    .Distinct()
+                    .ToList();
+
+                if (!problemBadges.Any()) continue;
+
+                var weakSubjects = student.Grades
+                    .Where(g => g.Value == "I" || g.Value == "S")
+                    .Select(g => g.SubjectName)
+                    .Distinct()
+                    .ToList();
+
+                var neededGoodBadges = problemBadges
+                    .Where(b => badgeOpposites.ContainsKey(b))
+                    .Select(b => badgeOpposites[b])
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                StudentDto? suggestedBuddy = null;
+
+                foreach (var candidate in students.Where(c => c.Id != student.Id))
+                {
+                    var candidateBadges = badgesByStudent
+                        .GetValueOrDefault(candidate.Id, new List<Badge>())
+                        .Select(b => b.Type)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    if (!neededGoodBadges.Any(nb => candidateBadges.Contains(nb)))
+                        continue;
+
+                    bool hasBetterGrade = weakSubjects.Any(subj =>
+                        SubjectAvg(candidate, subj, gradeWeight) >
+                        SubjectAvg(student, subj, gradeWeight));
+
+                    if (hasBetterGrade)
+                    {
+                        suggestedBuddy = candidate.ToDto();
+                        break;
+                    }
+                }
+
+                result.Add(new
+                {
+                    student = student.ToDto(),
+                    problemBadges,
+                    suggestedBuddy
+                });
+            }
+
+            return Ok(result);
+        }
+
         [Authorize(Roles = "Teacher")]
         [HttpPost("toggle-generator")]
-        public IActionResult ToggleGenerator([FromBody] ToggleInput input, [FromServices] GeneratorState state)
+        public async Task<IActionResult> ToggleGenerator([FromBody] ToggleInput input, [FromServices] GeneratorState state) // REPARAT: Făcut async Task
         {
             state.IsRunning = input.IsRunning;
 
-            _auditLogger.LogActionAsync(
-                userId: "SYSTEM",
-                role: "ADMIN",
+            var claims = GetCurrentUserClaims();
+
+            // REPARAT: Folosim await în loc de .Wait() care risca deadlock
+            await _auditLogger.LogActionAsync(
+                userId: claims.UserId,
+                role: claims.Role,
                 actionInformation: $"Generatorul automat de elevi a fost {(input.IsRunning ? "PORNIT" : "OPRIT")}."
-            ).Wait();
+            );
 
             return Ok();
         }

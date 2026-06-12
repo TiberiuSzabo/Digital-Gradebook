@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 
 const API_BASE_URL = "https://digital-gradebook.onrender.com";
 let inactivityTimer;
+let inactivityResetFn = null;
 
 export const useAuthStore = create(
     persist(
@@ -95,6 +96,9 @@ export const useAuthStore = create(
                     });
                     const data = await response.json();
                     if (response.ok) {
+                        if (data.requiresPinSetup) {
+                            return { success: true, requiresPinSetup: true, message: data.message };
+                        }
                         const formattedUser = { id: data.id, email: data.username, name: data.username, role: data.role, studentId: data.studentId };
                         set({ currentUser: formattedUser, token: data.token });
                         get().startInactivityTimer();
@@ -133,9 +137,45 @@ export const useAuthStore = create(
                 get().clearInactivityTimer();
             },
 
+            refreshToken: async () => {
+                const token = get().token;
+                if (!token) return false;
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/Auth/refresh`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        set({ token: data.token });
+                        return true;
+                    }
+                    return false;
+                } catch {
+                    return false;
+                }
+            },
+
+            setupPin: async (username, pin) => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/Auth/setup-pin`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, pin })
+                    });
+                    const data = await response.json();
+                    return { success: response.ok, message: data.message };
+                } catch {
+                    return { success: false, message: 'Eroare de conexiune!' };
+                }
+            },
+
             startInactivityTimer: () => {
                 get().clearInactivityTimer();
-                const resetTimer = () => {
+                inactivityResetFn = () => {
                     if (inactivityTimer) clearTimeout(inactivityTimer);
                     inactivityTimer = setTimeout(() => {
                         get().logout();
@@ -144,15 +184,18 @@ export const useAuthStore = create(
                     }, 15 * 60 * 1000);
                 };
 
-                document.onmousemove = resetTimer;
-                document.onkeypress = resetTimer;
-                resetTimer();
+                document.addEventListener('mousemove', inactivityResetFn);
+                document.addEventListener('keypress', inactivityResetFn);
+                inactivityResetFn();
             },
 
             clearInactivityTimer: () => {
                 if (inactivityTimer) clearTimeout(inactivityTimer);
-                document.onmousemove = null;
-                document.onkeypress = null;
+                if (inactivityResetFn) {
+                    document.removeEventListener('mousemove', inactivityResetFn);
+                    document.removeEventListener('keypress', inactivityResetFn);
+                    inactivityResetFn = null;
+                }
             }
         }),
         {

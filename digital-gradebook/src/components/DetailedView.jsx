@@ -1,6 +1,7 @@
 // src/components/DetailedView.jsx
 import React, { useState } from 'react';
 import ChatModal from './ChatModal';
+import BadgePanel from './BadgePanel';
 
 import { useStudentStore } from '../store/useStudentStore';
 import { useAuthStore } from '../store/useAuthStore'; // AM ADĂUGAT: pentru a ști cine trimite mesajul
@@ -117,9 +118,11 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete, isRes
 
     return (
         <div className="detail-container">
-            <div className="detail-back-btn" onClick={onBack}>
-                <span className="detail-back-icon">←</span> Back to MasterView
-            </div>
+            {!isRestricted && (
+                <div className="detail-back-btn" onClick={onBack}>
+                    <span className="detail-back-icon">←</span> Back to MasterView
+                </div>
+                )}
 
             <div className="detail-card">
                 <div className="detail-header">
@@ -135,6 +138,11 @@ function DetailedView({ student: initialStudent, onBack, onEdit, onDelete, isRes
                         <div className="detail-emoji-box">
                             <span className="detail-emoji">{getEmoji(student.finalGrade)}</span>
                         </div>
+                        <BadgePanel
+                            studentId={student.id}
+                            isTeacher={currentUser?.role === 'Teacher' || currentUser?.role === 'Admin'}
+                            classYear={student.classYear || 1}
+                        />
                     </div>
 
                     <div className="detail-right">

@@ -6,6 +6,10 @@ import DetailedView from './components/DetailedView.jsx';
 import StudentForm from './components/StudentForm.jsx';
 import LogInView from './components/LogInView.jsx';
 import RegisterView from './components/RegisterView.jsx';
+import StudentClassView from './components/StudentClassView.jsx';
+import AdminView from './components/AdminView.jsx';
+import ParentDashboardView from './components/ParentDashboardView.jsx';
+import ClassWeatherView from './components/ClassWeatherView.jsx';
 import { useStudentStore } from './store/useStudentStore.js';
 import { useUserTracking } from './hooks/useUserTracking';
 import { useAuthStore } from './store/useAuthStore.js';
@@ -13,7 +17,7 @@ import { useAuthStore } from './store/useAuthStore.js';
 function TopStatusBar({ themeStyles, lastActivity, isOffline, currentUser, onLogout, onToggleTheme, theme }) {
     return (
         <div style={{
-            backgroundColor: '#dfffd6', color: themeStyles.textColor,
+            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#dfffd6', color: themeStyles.textColor,
             borderBottom: `1px solid ${themeStyles.barBorder}`,
             padding: '10px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             boxShadow: '0 2px 5px rgba(0,0,0,0.1)', transition: 'all 0.3s ease', flexShrink: 0
@@ -148,7 +152,7 @@ function AppContent() {
                 <Routes>
                     <Route path="/" element={
                         currentUser ? (
-                            <Navigate to={currentUser.role === 'Teacher' ? '/master' : currentUser.role === 'Student' ? '/student-dashboard' : '/parent-dashboard'} />
+                            <Navigate to={currentUser.role === 'Admin' ? '/admin-dashboard' : currentUser.role === 'Teacher' ? '/master' : currentUser.role === 'Student' ? '/student-dashboard' : '/parent-dashboard'} />
                         ) : (
                             <div style={{ padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
                                 <div style={{ fontSize: '48px', marginBottom: '30px' }}>🌞</div>
@@ -168,7 +172,7 @@ function AppContent() {
                     <Route path="/master" element={
                         currentUser?.role === 'Teacher' ? (
                             <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <MasterView students={students} onStudentClick={(s) => { setSelectedStudent(s); navigate('/detail'); }} onAddClick={() => { setSelectedStudent(null); navigate('/form'); }} />
+                                <MasterView students={students} onStudentClick={(s) => { setSelectedStudent(s); navigate('/detail'); }} onAddClick={() => { setSelectedStudent(null); navigate('/form'); }} theme={theme} />
                             </div>
                         ) : <Navigate to="/" />
                     } />
@@ -189,23 +193,22 @@ function AppContent() {
                         ) : <Navigate to="/" />
                     } />
 
-                    {/* RESTRICTED PERMISSIONS - Student și Parent văd doar propriul DetailedView */}
+                    <Route path="/admin-dashboard" element={
+                        currentUser?.role === 'Admin' ? (
+                            <AdminView currentUser={currentUser} themeStyles={themeStyles} students={students} />
+                        ) : <Navigate to="/" />
+                    } />
+
                     <Route path="/student-dashboard" element={
-                        <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-                            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Panou Elev</h2>
-                            {loggedInStudentData ? (
-                                <DetailedView student={loggedInStudentData} isRestricted={true} />
-                            ) : <p style={{ textAlign: 'center' }}>Se încarcă datele...</p>}
-                        </div>
+                        <StudentClassView currentUser={currentUser} themeStyles={themeStyles} students={students} allStudents={students} />
                     } />
 
                     <Route path="/parent-dashboard" element={
-                        <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-                            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Panou Părinte</h2>
-                            {loggedInStudentData ? (
-                                <DetailedView student={loggedInStudentData} isRestricted={true} />
-                            ) : <p style={{ textAlign: 'center' }}>Se încarcă datele...</p>}
-                        </div>
+                        <ParentDashboardView currentUser={currentUser} themeStyles={themeStyles} students={students} allStudents={students} />
+                    } />
+
+                    <Route path="/class-weather" element={
+                        <ClassWeatherView currentUser={currentUser} themeStyles={themeStyles} students={students} />
                     } />
 
                     <Route path="*" element={<Navigate to="/" />} />

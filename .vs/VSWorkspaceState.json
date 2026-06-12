@@ -1,16 +1,13 @@
 {
   "ExpandedNodes": [
     "",
-    "\\digital-gradebook\\src",
-    "\\digital-gradebook\\src\\services",
-    "\\digital-gradebook\\src\\store",
     "\\server-dotnet",
     "\\server-dotnet\\DigitalGradebook.Domain",
     "\\server-dotnet\\DigitalGradebook.Repository",
     "\\server-dotnet\\DigitalGradebook.Service",
     "\\server-dotnet\\DigitalGradebook.WebApi",
-    "\\server-dotnet\\DigitalGradebook.WebApi\\bin"
+    "\\server-dotnet\\DigitalGradebook.WebApi\\Controllers"
   ],
-  "SelectedNode": "\\server-dotnet\\DigitalGradebook.Service\\StudentService.cs",
+  "SelectedNode": "\\server-dotnet\\DigitalGradebook.WebApi\\Program.cs",
   "PreviewInSolutionExplorer": false
 }

@@ -16,10 +16,16 @@ namespace DigitalGradebook.Repository
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<DigitalGradebook.Domain.Entities.LogEntry> Logs { get; set; }
         public DbSet<DigitalGradebook.Domain.Entities.SuspiciousUser> SuspiciousUsers { get; set; }
+        public DbSet<Badge> Badges { get; set; }
+        public DbSet<TeacherProfile> TeacherProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TeacherProfile>()
+                .HasIndex(tp => tp.UserId)
+                .IsUnique();
 
             // 1. Inserăm elevii (exact cum îi aveai)
             modelBuilder.Entity<Student>().HasData(

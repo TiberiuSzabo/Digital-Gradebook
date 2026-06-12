@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/useAuthStore';
 
 function LogInView() {
     const navigate = useNavigate();
-    const { login, verify2FA, verifyPin, forgotPassword, resetPassword } = useAuthStore();
+    const { login, verify2FA, verifyPin, forgotPassword, resetPassword, setupPin } = useAuthStore();
 
     const [step, setStep] = useState('login');
 
@@ -14,6 +14,9 @@ function LogInView() {
     const [pin3fa, setPin3fa] = useState('');
     const [resetToken, setResetToken] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [newPin, setNewPin] = useState('');
+    const [confirmNewPin, setConfirmNewPin] = useState('');
+    const [pinSetupError, setPinSetupError] = useState('');
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
@@ -48,11 +51,31 @@ function LogInView() {
         e.preventDefault();
         const result = await verifyPin(email, pin3fa);
         if (result.success) {
-            if (result.role === 'Teacher') navigate('/master');
-            else if (result.role === 'Student') navigate('/student-dashboard');
-            else if (result.role === 'Parent') navigate('/parent-dashboard');
+            if (result.requiresPinSetup) {
+                setStep('setup-pin');
+            } else {
+                if (result.role === 'Teacher') navigate('/master');
+                else if (result.role === 'Student') navigate('/student-dashboard');
+                else if (result.role === 'Parent') navigate('/parent-dashboard');
+            }
         } else {
             alert(result.message);
+        }
+    };
+
+    const handlePinSetupSubmit = async (e) => {
+        e.preventDefault();
+        setPinSetupError('');
+        if (!/^\d{4,8}$/.test(newPin)) return setPinSetupError("PIN-ul trebuie să conțină între 4 și 8 cifre.");
+        if (newPin !== confirmNewPin) return setPinSetupError("PIN-urile nu se potrivesc!");
+
+        const result = await setupPin(email, newPin);
+        if (result.success) {
+            alert("PIN setat! Introduceți PIN-ul pentru a finaliza autentificarea.");
+            setPin3fa(newPin);
+            setStep('pin');
+        } else {
+            setPinSetupError(result.message || "Eroare la setarea PIN-ului.");
         }
     };
 
@@ -117,7 +140,7 @@ function LogInView() {
             {step === 'pin' && (
                 <>
                     <h1 className="auth-title" style={{color: '#28a745'}}>Pasul 3: PIN Securitate 🔑</h1>
-                    <h3 className="auth-subtitle">Introduceti PIN-ul de 4 cifre alocat contului (Implicit: 1234)</h3>
+                    <h3 className="auth-subtitle">Introduceti PIN-ul de securitate configurat la crearea contului</h3>
                     <form onSubmit={handlePinSubmit} className="auth-form">
                         <div>
                             <label className="auth-label">PIN Securitate (3FA)</label>
@@ -125,6 +148,25 @@ function LogInView() {
                         </div>
                     </form>
                     <button onClick={handlePinSubmit} className="auth-btn-submit">Finalizeaza Autentificarea</button>
+                </>
+            )}
+
+            {step === 'setup-pin' && (
+                <>
+                    <h1 className="auth-title" style={{color: '#fd7e14'}}>Configurați PIN-ul 🔐</h1>
+                    <h3 className="auth-subtitle">Primul dvs. login necesită setarea unui PIN de securitate</h3>
+                    <form onSubmit={handlePinSetupSubmit} className="auth-form">
+                        <div>
+                            <label className="auth-label">PIN nou (4–8 cifre)</label>
+                            <input type="password" inputMode="numeric" value={newPin} onChange={(e) => setNewPin(e.target.value)} placeholder="****" maxLength={8} className="auth-input" style={{textAlign: 'center', fontSize: '24px', letterSpacing: '10px'}} />
+                        </div>
+                        <div>
+                            <label className="auth-label">Confirmați PIN-ul</label>
+                            <input type="password" inputMode="numeric" value={confirmNewPin} onChange={(e) => setConfirmNewPin(e.target.value)} placeholder="****" maxLength={8} className="auth-input" style={{textAlign: 'center', fontSize: '24px', letterSpacing: '10px'}} />
+                        </div>
+                        {pinSetupError && <p style={{color: 'red', fontSize: '13px', textAlign: 'center'}}>{pinSetupError}</p>}
+                    </form>
+                    <button onClick={handlePinSetupSubmit} className="auth-btn-submit">Salvează PIN și Continuă</button>
                 </>
             )}
 

@@ -1,6 +1,7 @@
 ﻿using DigitalGradebook.Domain.Entities;
 using DigitalGradebook.Repository;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net; // AM ADĂUGAT PENTRU BCRYPT
 
 namespace DigitalGradebook.WebApi
 {
@@ -36,7 +37,10 @@ namespace DigitalGradebook.WebApi
                 var parentRole = new Role { Name = "Parent" };
                 parentRole.Permissions.Add(restrictedPerm);
 
-                context.Roles.AddRange(teacherRole, studentRole, parentRole);
+                var adminRole = new Role { Name = "Admin" };
+                adminRole.Permissions.Add(fullPerm);
+
+                context.Roles.AddRange(teacherRole, studentRole, parentRole, adminRole);
                 await context.SaveChangesAsync();
             }
 
@@ -47,47 +51,47 @@ namespace DigitalGradebook.WebApi
                 context.Users.Add(new User
                 {
                     Username = "admin",
-                    Password = "password",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"), // REPARAT AICI
                     RoleId = teacherRole.Id
                 });
                 await context.SaveChangesAsync();
             }
 
-            // 4. Generăm conturi pentru Elevi și Părinți
-            // 4. Generăm conturi pentru Elevi și Părinți automat pe baza Email-ului și Prenumelui
+            // 3b. Generăm contul de superadmin
+            if (!await context.Users.AnyAsync(u => u.Username == "superadmin"))
+            {
+                var adminRoleDb = await context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+                if (adminRoleDb == null) return;
+                context.Users.Add(new User
+                {
+                    Username = "superadmin",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                    RoleId = adminRoleDb.Id
+                });
+                await context.SaveChangesAsync();
+            }
+
+            // 4. Generăm conturi pentru Elevi și Părinți automat pe baza Email-ului
             var students = await context.Students.ToListAsync();
             var studentRoleDb = await context.Roles.FirstAsync(r => r.Name == "Student");
             var parentRoleDb = await context.Roles.FirstAsync(r => r.Name == "Parent");
 
             foreach (var student in students)
             {
-                // Sărim dacă elevul nu are email trecut
                 if (string.IsNullOrEmpty(student.Email)) continue;
 
-                // Contul Elevului: Username = Email, Password = Prenume (ex: Alex)
-                if (!await context.Users.AnyAsync(u => u.StudentId == student.Id && u.RoleId == studentRoleDb.Id))
-                {
-                    context.Users.Add(new User
-                    {
-                        Username = student.Email, // Folosim Email-ul la login
-                        Password = student.FirstName, // Parola e prenumele
-                        RoleId = studentRoleDb.Id,
-                        StudentId = student.Id
-                    });
-                }
+                var needsStudentAccount = !await context.Users.AnyAsync(u => u.StudentId == student.Id && u.RoleId == studentRoleDb.Id);
+                var needsParentAccount  = !await context.Users.AnyAsync(u => u.StudentId == student.Id && u.RoleId == parentRoleDb.Id);
 
-                // Contul Părintelui: Username = parent_email, Password = Prenume Elev
-                var parentUsername = "parent_" + student.Email;
-                if (!await context.Users.AnyAsync(u => u.StudentId == student.Id && u.RoleId == parentRoleDb.Id))
-                {
-                    context.Users.Add(new User
-                    {
-                        Username = parentUsername,
-                        Password = student.FirstName,
-                        RoleId = parentRoleDb.Id,
-                        StudentId = student.Id
-                    });
-                }
+                if (!needsStudentAccount && !needsParentAccount) continue;
+
+                var (studentUser, parentUser, studentPwd, parentPwd, pin) =
+                    StudentAccountHelper.CreateAccounts(student, studentRoleDb, parentRoleDb);
+
+                if (needsStudentAccount) context.Users.Add(studentUser);
+                if (needsParentAccount)  context.Users.Add(parentUser);
+
+                Console.WriteLine($"[SEED] {student.LastName} {student.FirstName} — student: {studentUser.Username} / {studentPwd}  |  parent: {parentUser.Username} / {parentPwd}  |  PIN: {pin}");
             }
             await context.SaveChangesAsync();
         }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import { useAuthStore } from './useAuthStore.js';
 
 const API_BASE_URL = "https://digital-gradebook.onrender.com";
 const API_URL = `${API_BASE_URL}/api/Students`;
@@ -101,20 +102,28 @@ export const useStudentStore = create((set, get) => ({
 
     fetchStudents: async () => {
         try {
-            const token = getAuthToken(get);
-            const response = await fetch(API_URL, {
+            let token = getAuthToken(get);
+            let response = await fetch(API_URL, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.warn("Sesiune expirată sau token invalid.");
+            if (response.status === 401) {
+                const refreshed = await useAuthStore.getState().refreshToken();
+                if (refreshed) {
+                    token = getAuthToken(get);
+                    response = await fetch(API_URL, {
+                        method: 'GET',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } else {
+                    console.warn("Sesiune expirată — token neînnoit.");
                     get().logout();
                     return;
                 }
+            }
+
+            if (!response.ok) {
                 throw new Error('Eroare rețea');
             }
 

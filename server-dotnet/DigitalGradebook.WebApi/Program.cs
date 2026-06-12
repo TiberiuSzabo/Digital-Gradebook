@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // AM STERS: builder.WebHost.UseUrls(...) - Render se va ocupa de porturi automat
 
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<DigitalGradebook.Repository.ChatRepository>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
@@ -49,11 +50,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
     {
-        policy.SetIsOriginAllowed(origin => true)
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
