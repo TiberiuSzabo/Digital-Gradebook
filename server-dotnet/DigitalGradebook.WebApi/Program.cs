@@ -20,7 +20,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=gradebook.db";
     if (connectionString.StartsWith("postgresql") || connectionString.StartsWith("postgres"))
     {
-        options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository"));
+        var npgsqlConnection = ConvertPostgresUrl(connectionString);
+        options.UseNpgsql(npgsqlConnection, b => b.MigrationsAssembly("DigitalGradebook.Repository"));
     }
     else
     {
@@ -104,3 +105,10 @@ app.MapHub<GeneratorHub>("/generatorHub");
 app.MapHub<DigitalGradebook.WebApi.Hubs.ChatHub>("/chatHub");
 
 app.Run();
+
+static string ConvertPostgresUrl(string url)
+{
+    var uri = new Uri(url);
+    var userInfo = uri.UserInfo.Split(':');
+    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
