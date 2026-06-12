@@ -247,6 +247,9 @@ namespace DigitalGradebook.Repository.Migrations
                 table: "Users",
                 column: "StudentId");
 
+            migrationBuilder.Sql("ALTER TABLE \"Permissions\" ALTER COLUMN \"Id\" ADD GENERATED ALWAYS AS IDENTITY;");
+            migrationBuilder.Sql("ALTER TABLE \"Roles\" ALTER COLUMN \"Id\" ADD GENERATED ALWAYS AS IDENTITY;");
+            migrationBuilder.Sql("ALTER TABLE \"Users\" ALTER COLUMN \"Id\" ADD GENERATED ALWAYS AS IDENTITY;");
             migrationBuilder.Sql("INSERT INTO \"Permissions\" (\"Name\") VALUES ('FULL_PERMISSIONS');");
             migrationBuilder.Sql("INSERT INTO \"Permissions\" (\"Name\") VALUES ('RESTRICTED_PERMISSIONS');");
             migrationBuilder.Sql("INSERT INTO \"Roles\" (\"Name\") VALUES ('Teacher');");
