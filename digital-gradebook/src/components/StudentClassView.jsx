@@ -16,9 +16,37 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
     const myStudent = (students || allStudents || []).find(s => s.id === currentUser?.studentId);
     const classYear = myStudent?.classYear || 1;
 
-    const classmates = (students || allStudents || []).filter(s =>
-        Number(s.classYear || s.class) === Number(classYear)
-    );
+    const [classmates, setClassmates] = useState([]);
+
+    useEffect(() => {
+        if (!classYear) return;
+        const token = JSON.parse(localStorage.getItem('auth-storage'))?.state?.token;
+        fetch(`https://digital-gradebook.onrender.com/api/Students/class/${classYear}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(r => r.json())
+            .then(data => setClassmates(data.map(s => ({
+                ...s,
+                subjects: Object.entries(
+                    (s.grades || []).reduce((acc, g) => {
+                        if (!acc[g.subjectName]) acc[g.subjectName] = [];
+                        acc[g.subjectName].push(g.value);
+                        return acc;
+                    }, {})
+                ).map(([name, grades]) => ({ name, grades })),
+                finalGrade: (() => {
+                    const map = { FB: 4, B: 3, S: 2, I: 1 };
+                    const vals = (s.grades || []).map(g => map[g.value]).filter(Boolean);
+                    if (!vals.length) return '—';
+                    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+                    if (avg >= 3.5) return 'FB';
+                    if (avg >= 2.5) return 'B';
+                    if (avg >= 1.5) return 'S';
+                    return 'I';
+                })()
+            }))))
+            .catch(console.error);
+    }, [classYear]);
 
     const fetchBadgesForStudent = useBadgeStore(state => state.fetchBadgesForStudent);
     const studentBadges         = useBadgeStore(state => state.studentBadges);
