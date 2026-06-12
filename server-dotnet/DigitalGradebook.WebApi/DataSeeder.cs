@@ -30,8 +30,8 @@ namespace DigitalGradebook.WebApi
             if (!await context.Permissions.AnyAsync())
             {
                 context.Permissions.AddRange(
-                    new Permission { Name = "FULL_PERMISSIONS" },
-                    new Permission { Name = "RESTRICTED_PERMISSIONS" }
+                    new Permission { Id = 1, Name = "FULL_PERMISSIONS" },
+                    new Permission { Id = 2, Name = "RESTRICTED_PERMISSIONS" }
                 );
                 await context.SaveChangesAsync();
             }
@@ -42,19 +42,12 @@ namespace DigitalGradebook.WebApi
                 var fullPerm = await context.Permissions.FirstAsync(p => p.Name == "FULL_PERMISSIONS");
                 var restrictedPerm = await context.Permissions.FirstAsync(p => p.Name == "RESTRICTED_PERMISSIONS");
 
-                var teacherRole = new Role { Name = "Teacher" };
-                teacherRole.Permissions.Add(fullPerm);
-
-                var studentRole = new Role { Name = "Student" };
-                studentRole.Permissions.Add(restrictedPerm);
-
-                var parentRole = new Role { Name = "Parent" };
-                parentRole.Permissions.Add(restrictedPerm);
-
-                var adminRole = new Role { Name = "Admin" };
-                adminRole.Permissions.Add(fullPerm);
-
-                context.Roles.AddRange(teacherRole, studentRole, parentRole, adminRole);
+                context.Roles.AddRange(
+                    new Role { Id = 1, Name = "Teacher", Permissions = new List<Permission> { fullPerm } },
+                    new Role { Id = 2, Name = "Student", Permissions = new List<Permission> { restrictedPerm } },
+                    new Role { Id = 3, Name = "Parent", Permissions = new List<Permission> { restrictedPerm } },
+                    new Role { Id = 4, Name = "Admin", Permissions = new List<Permission> { fullPerm } }
+                );
                 await context.SaveChangesAsync();
             }
 
