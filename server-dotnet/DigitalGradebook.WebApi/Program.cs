@@ -61,19 +61,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
     {
-        policy.SetIsOriginAllowed(origin => {
-            var uri = new Uri(origin);
-            return uri.Host == "localhost" ||
-                   uri.Host.StartsWith("192.168.") ||
-                   uri.Host.StartsWith("10.") ||
-                   uri.Host.StartsWith("172.") ||
-                   origin.Contains("onrender.com") ||
-                   origin.Contains("netlify.app") ||
-                   origin.Contains("vercel.app");
-        })
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
