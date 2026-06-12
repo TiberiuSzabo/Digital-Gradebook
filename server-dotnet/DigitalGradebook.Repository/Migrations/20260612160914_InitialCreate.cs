@@ -254,8 +254,6 @@ namespace DigitalGradebook.Repository.Migrations
             migrationBuilder.Sql("INSERT INTO \"Roles\" (\"Name\") VALUES ('Student');");
             migrationBuilder.Sql("INSERT INTO \"Roles\" (\"Name\") VALUES ('Parent');");
             migrationBuilder.Sql("INSERT INTO \"Roles\" (\"Name\") VALUES ('Admin');");
-            migrationBuilder.Sql("INSERT INTO \"Users\" (\"Username\", \"PasswordHash\", \"RoleId\", \"SecurityPinHash\") SELECT 'admin', '$2a$11$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', \"Id\", '$2a$11$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy' FROM \"Roles\" WHERE \"Name\" = 'Teacher';");
-            migrationBuilder.Sql("INSERT INTO \"Users\" (\"Username\", \"PasswordHash\", \"RoleId\", \"SecurityPinHash\") SELECT 'superadmin', '$2a$11$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', \"Id\", '$2a$11$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy' FROM \"Roles\" WHERE \"Name\" = 'Admin';");
         }
 
         /// <inheritdoc />

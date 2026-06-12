@@ -77,6 +77,34 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
+
+    // Ensure admin and superadmin accounts exist with correct BCrypt hashes
+    var teacherRole = db.Roles.FirstOrDefault(r => r.Name == "Teacher");
+    var adminRole = db.Roles.FirstOrDefault(r => r.Name == "Admin");
+
+    if (teacherRole != null && !db.Users.Any(u => u.Username == "admin"))
+    {
+        db.Users.Add(new DigitalGradebook.Domain.Entities.User
+        {
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+            RoleId = teacherRole.Id,
+            SecurityPinHash = BCrypt.Net.BCrypt.HashPassword("1234")
+        });
+    }
+
+    if (adminRole != null && !db.Users.Any(u => u.Username == "superadmin"))
+    {
+        db.Users.Add(new DigitalGradebook.Domain.Entities.User
+        {
+            Username = "superadmin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+            RoleId = adminRole.Id,
+            SecurityPinHash = BCrypt.Net.BCrypt.HashPassword("1234")
+        });
+    }
+
+    await db.SaveChangesAsync();
 }
 
 if (app.Environment.IsDevelopment())
