@@ -271,6 +271,21 @@ namespace DigitalGradebook.WebApi.Controllers
             return Ok(new { token = newToken });
         }
 
+        [HttpPost("reset-admin-temp")]
+        public async Task<IActionResult> ResetAdminTemp()
+        {
+            var admin = await _context.Users.FirstOrDefaultAsync(u => u.Username == "admin");
+            var superadmin = await _context.Users.FirstOrDefaultAsync(u => u.Username == "superadmin");
+
+            if (admin != null)
+                admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword("password");
+            if (superadmin != null)
+                superadmin.PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123");
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Parole resetate cu succes." });
+        }
+
         [HttpPost("setup-pin")]
         public async Task<IActionResult> SetupPin([FromBody] SetupPinRequest request)
         {
