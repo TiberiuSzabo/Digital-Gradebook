@@ -19,7 +19,7 @@ namespace DigitalGradebook.Service
                 UserId = userId,
                 Role = role.ToUpper(),
                 ActionInformation = actionInformation,
-                Timestamp = DateTime.Now
+                Timestamp = DateTime.UtcNow
             };
 
             _context.Logs.Add(log);
@@ -34,7 +34,7 @@ namespace DigitalGradebook.Service
                 Username = username,
                 Role = role.ToUpper(),
                 Reason = reason,
-                DetectedAt = DateTime.Now
+                DetectedAt = DateTime.UtcNow
             };
 
             _context.SuspiciousUsers.Add(suspect);
