@@ -29,6 +29,7 @@ function LogInView() {
                 if (result.role === 'Teacher') navigate('/master');
                 else if (result.role === 'Student') navigate('/student-dashboard');
                 else if (result.role === 'Parent') navigate('/parent-dashboard');
+                else if (result.role === 'Admin') navigate('/admin-dashboard');
             }
         } else {
             alert(result.message);

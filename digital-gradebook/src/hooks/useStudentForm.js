@@ -7,11 +7,16 @@ export function useStudentForm(initialData, onSave) {
         cnp: '', username: '', uniqueNumber: '',
         parentDad: '', phoneDad: '',
         parentMom: '', phoneMom: '',
-        mentions: ''
+        mentions: '',
+        classYear: 1
     });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: name === 'classYear' ? parseInt(value) : value
+        });
     };
 
     const handleSubmit = (e) => {

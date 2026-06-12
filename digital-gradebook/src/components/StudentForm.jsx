@@ -25,6 +25,11 @@ function StudentForm({ initialData, onSave, onCancel }) {
                     <input name="username" value={formData.username} onChange={handleChange} placeholder="Username" className="form-input" />
                     <input name="uniqueNumber" value={formData.uniqueNumber} onChange={handleChange} placeholder="Unique Number" className="form-input" />
                 </div>
+                <div className="form-row">
+                    <select name="classYear" value={formData.classYear} onChange={handleChange} className="form-input">
+                        {[1,2,3,4,5,6,7,8].map(y => <option key={y} value={y}>Class {y}</option>)}
+                    </select>
+                </div>
                 <hr className="form-divider" />
                 <div className="form-row">
                     <input name="parentDad" value={formData.parentDad} onChange={handleChange} placeholder="Father's Name" className="form-input" />
