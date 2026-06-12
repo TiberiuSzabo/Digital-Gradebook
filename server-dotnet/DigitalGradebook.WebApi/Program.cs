@@ -15,23 +15,13 @@ builder.Services.AddSingleton<DigitalGradebook.Repository.ChatRepository>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-bool isPostgres = !string.IsNullOrEmpty(connectionString) &&
-                  (connectionString.Contains("Host=") ||
-                   connectionString.Contains("host=") ||
-                   connectionString.StartsWith("postgres"));
-
-if (isPostgres)
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository"))
-               .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
-}
-else
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite("Data Source=gradebook.db", b => b.MigrationsAssembly("DigitalGradebook.Repository")));
-}
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("DigitalGradebook.Repository")
+    ).ConfigureWarnings(w => w.Ignore(
+        Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning
+    )));
 builder.Services.AddSingleton<GeneratorState>();
 builder.Services.AddHostedService<GeneratorWorker>();
 builder.Services.AddScoped<DigitalGradebook.Service.IAuditLoggerService, DigitalGradebook.Service.AuditLoggerService>();
@@ -113,10 +103,3 @@ app.MapHub<GeneratorHub>("/generatorHub");
 app.MapHub<DigitalGradebook.WebApi.Hubs.ChatHub>("/chatHub");
 
 app.Run();
-
-static string ConvertPostgresUrl(string url)
-{
-    var uri = new Uri(url);
-    var userInfo = uri.UserInfo.Split(':');
-    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-}
