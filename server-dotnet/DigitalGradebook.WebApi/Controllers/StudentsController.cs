@@ -234,6 +234,16 @@ namespace DigitalGradebook.WebApi.Controllers
             var student = await _context.Students.Include(s => s.Grades).FirstOrDefaultAsync(s => s.Id == id);
             if (student == null) return NotFound("Elevul nu a fost găsit.");
 
+            var claims = GetCurrentUserClaims();
+            var teacherProfile = await _context.TeacherProfiles
+                .FirstOrDefaultAsync(tp => tp.UserId == int.Parse(claims.UserId));
+
+            if (teacherProfile != null &&
+                !string.Equals(teacherProfile.Subject, input.SubjectName, StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid();
+            }
+
             var newGrade = new Grade
             {
                 StudentId = id,
@@ -244,7 +254,6 @@ namespace DigitalGradebook.WebApi.Controllers
             _context.Grades.Add(newGrade);
             await _context.SaveChangesAsync();
 
-            var claims = GetCurrentUserClaims();
             await _auditLogger.LogActionAsync(
                 userId: claims.UserId,
                 role: claims.Role,
