@@ -161,12 +161,14 @@ function MasterView({ students = [], onStudentClick, onAddClick, theme = 'light'
                             {[1,2,3,4,5,6,7,8].map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                     </div>
-                    <button
-                        onClick={() => setIsSecurityOpen(true)}
-                        style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#dc3545', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white' }}
-                    >
-                        🚨 Security Logs
-                    </button>
+                    {currentUser?.role === 'Admin' && (
+                        <button
+                            onClick={() => setIsSecurityOpen(true)}
+                            style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#dc3545', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white' }}
+                        >
+                            🚨 Security Logs
+                        </button>
+                    )}
                 </div>
             </div>
 

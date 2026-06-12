@@ -39,9 +39,9 @@ const WEATHER_CONFIG = {
 
 const GOOD_KEYS = new Set(BADGE_TYPES.good.map(t => t.key));
 
-function ClassWeatherView({ themeStyles, students = [] }) {
+function ClassWeatherView({ themeStyles, students = [], classYear: classYearProp }) {
     const [searchParams] = useSearchParams();
-    const classYear = Number(searchParams.get('classYear')) || 1;
+    const classYear = classYearProp || Number(searchParams.get('classYear')) || 1;
 
     const fetchClassWeather = useBadgeStore(state => state.fetchClassWeather);
     const fetchClassBadges  = useBadgeStore(state => state.fetchClassBadges);

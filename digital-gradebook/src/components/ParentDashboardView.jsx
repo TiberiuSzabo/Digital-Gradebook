@@ -234,8 +234,7 @@ function ParentDashboardView({ currentUser, themeStyles, students }) {
 
                     {/* Class Weather */}
                     {classYear && (
-                        <ClassWeatherView classYear={classYear} themeStyles={themeStyles} />
-                    )}
+                        <ClassWeatherView classYear={classYear} themeStyles={themeStyles} students={students} />                    )}
                 </div>
             )}
 
