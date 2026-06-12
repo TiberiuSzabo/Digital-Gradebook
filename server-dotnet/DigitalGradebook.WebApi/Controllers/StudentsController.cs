@@ -82,7 +82,7 @@ namespace DigitalGradebook.WebApi.Controllers
             return Ok(student.ToDto());
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Teacher")]
         [HttpPost]
         public async Task<ActionResult<StudentDto>> PostStudent([FromBody] StudentInputDto input)
         {

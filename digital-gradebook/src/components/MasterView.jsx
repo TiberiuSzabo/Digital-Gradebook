@@ -152,7 +152,7 @@ function MasterView({ students = [], onStudentClick, onAddClick, theme = 'light'
                         */}
                     </div>
 
-                    {currentUser?.role === 'Admin' && (
+                    {(currentUser?.role === 'Admin' || currentUser?.role === 'Teacher') && (
                         <button className="btn-pulse" onClick={onAddClick} style={{ padding: '10px 20px', borderRadius: '20px', backgroundColor: '#ffda47', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333' }}>+ New Student</button>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
