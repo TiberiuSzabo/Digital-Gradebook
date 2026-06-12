@@ -12,14 +12,15 @@ namespace DigitalGradebook.WebApi
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // 0. Repair plaintext passwords left over from before the BCrypt migration
-            var plaintextUsers = await context.Users
-                .Where(u => !u.PasswordHash.StartsWith("$2"))
-                .ToListAsync();
-            foreach (var u in plaintextUsers)
-                u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(u.PasswordHash);
-            if (plaintextUsers.Count > 0)
-                await context.SaveChangesAsync();
+            var allUsers = await context.Users.ToListAsync();
+            foreach (var u in allUsers)
+            {
+                if (!string.IsNullOrEmpty(u.PasswordHash) && !u.PasswordHash.StartsWith("$2"))
+                {
+                    u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(u.PasswordHash);
+                }
+            }
+            await context.SaveChangesAsync();
 
             // 1. Generăm Permisiunile
             if (!await context.Permissions.AnyAsync())
