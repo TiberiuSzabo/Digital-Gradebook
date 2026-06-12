@@ -216,7 +216,8 @@ export const useStudentStore = create((set, get) => ({
                 phoneDad: studentData.phoneDad || "",
                 parentMom: studentData.parentMom || "",
                 phoneMom: studentData.phoneMom || "",
-                mentions: studentData.mentions || ""
+                mentions: studentData.mentions || "",
+                classYear: studentData.classYear || 1  // ← adaugă asta
             };
 
             const response = await fetch(url, {
