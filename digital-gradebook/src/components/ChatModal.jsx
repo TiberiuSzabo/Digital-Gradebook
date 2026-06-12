@@ -13,27 +13,37 @@ const ChatModal = ({ isOpen, onClose, roomIdentifier, currentUser }) => {
     };
 
     useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    useEffect(() => {
         if (!isOpen || !roomIdentifier) return;
 
         let isMounted = true;
         let currentConnection = null;
         const API_BASE_URL = "https://digital-gradebook.onrender.com";
+        const token = (() => {
+            try { return JSON.parse(localStorage.getItem('auth-storage'))?.state?.token; }
+            catch { return null; }
+        })();
+
         const startChat = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/Chat/${roomIdentifier}`);
+                const response = await fetch(`${API_BASE_URL}/api/Chat/${roomIdentifier}`, {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {}
+                });
                 if (response.ok) {
                     const history = await response.json();
-                    if (isMounted) {
-                        setMessages(history);
-                        scrollToBottom();
-                    }
+                    if (isMounted) setMessages(history);
                 }
             } catch (error) {
-                console.error(error);
+                console.error('Chat history error:', error);
             }
 
             currentConnection = new signalR.HubConnectionBuilder()
-                .withUrl(`${API_BASE_URL}/chatHub`)
+                .withUrl(`${API_BASE_URL}/chatHub`, {
+                    accessTokenFactory: () => token
+                })
                 .withAutomaticReconnect()
                 .build();
 
@@ -44,13 +54,12 @@ const ChatModal = ({ isOpen, onClose, roomIdentifier, currentUser }) => {
                 currentConnection.on("ReceiveMessage", (message) => {
                     if (isMounted) {
                         setMessages(prev => [...prev, message]);
-                        scrollToBottom();
                     }
                 });
 
                 if (isMounted) setConnection(currentConnection);
             } catch (e) {
-                console.error(e);
+                console.error('SignalR connection error:', e);
             }
         };
 

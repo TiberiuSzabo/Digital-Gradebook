@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using DigitalGradebook.Domain.Entities;
 using DigitalGradebook.Repository;
 
 namespace DigitalGradebook.WebApi.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly ChatRepository _chatRepository;
