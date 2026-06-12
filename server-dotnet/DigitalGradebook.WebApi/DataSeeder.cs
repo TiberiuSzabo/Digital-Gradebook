@@ -19,6 +19,10 @@ namespace DigitalGradebook.WebApi
                 {
                     u.PasswordHash = BCrypt.Net.BCrypt.HashPassword(u.PasswordHash);
                 }
+                if (string.IsNullOrEmpty(u.SecurityPinHash) || !u.SecurityPinHash.StartsWith("$2"))
+                {
+                    u.SecurityPinHash = BCrypt.Net.BCrypt.HashPassword("1234");
+                }
             }
             await context.SaveChangesAsync();
 
