@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -15,12 +16,12 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Logs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false),
-                    ActionInformation = table.Column<string>(type: "TEXT", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "text", nullable: false),
+                    ActionInformation = table.Column<string>(type: "text", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,9 +32,9 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Permissions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,9 +45,9 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,23 +58,23 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Students",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    LastName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    FirstName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Cnp = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    BirthDate = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    Username = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    UniqueNumber = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
-                    ParentDad = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    PhoneDad = table.Column<string>(type: "TEXT", maxLength: 15, nullable: false),
-                    ParentDadPhone = table.Column<string>(type: "TEXT", nullable: false),
-                    ParentMom = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    PhoneMom = table.Column<string>(type: "TEXT", maxLength: 15, nullable: false),
-                    ParentMomPhone = table.Column<string>(type: "TEXT", nullable: false),
-                    Mentions = table.Column<string>(type: "TEXT", nullable: false),
-                    ClassYear = table.Column<int>(type: "INTEGER", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Cnp = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    BirthDate = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    UniqueNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    ParentDad = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    PhoneDad = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    ParentDadPhone = table.Column<string>(type: "text", nullable: false),
+                    ParentMom = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    PhoneMom = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    ParentMomPhone = table.Column<string>(type: "text", nullable: false),
+                    Mentions = table.Column<string>(type: "text", nullable: false),
+                    ClassYear = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -84,13 +85,13 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "SuspiciousUsers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    Username = table.Column<string>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false),
-                    Reason = table.Column<string>(type: "TEXT", nullable: false),
-                    DetectedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "text", nullable: false),
+                    Reason = table.Column<string>(type: "text", nullable: false),
+                    DetectedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -101,8 +102,8 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "PermissionRole",
                 columns: table => new
                 {
-                    PermissionsId = table.Column<int>(type: "INTEGER", nullable: false),
-                    RolesId = table.Column<int>(type: "INTEGER", nullable: false)
+                    PermissionsId = table.Column<int>(type: "integer", nullable: false),
+                    RolesId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -125,12 +126,12 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Badges",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    StudentId = table.Column<int>(type: "INTEGER", nullable: false),
-                    AwardedByUserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    AwardedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<int>(type: "integer", nullable: false),
+                    AwardedByUserId = table.Column<int>(type: "integer", nullable: false),
+                    Type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    AwardedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -147,11 +148,11 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Grades",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    SubjectName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Value = table.Column<string>(type: "TEXT", maxLength: 2, nullable: false),
-                    StudentId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SubjectName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Value = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
+                    StudentId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -168,17 +169,17 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Username = table.Column<string>(type: "TEXT", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StudentId = table.Column<int>(type: "INTEGER", nullable: true),
-                    TwoFactorCode = table.Column<string>(type: "TEXT", nullable: true),
-                    TwoFactorExpiry = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    ResetToken = table.Column<string>(type: "TEXT", nullable: true),
-                    ResetTokenExpiry = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    SecurityPinHash = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<int>(type: "integer", nullable: false),
+                    StudentId = table.Column<int>(type: "integer", nullable: true),
+                    TwoFactorCode = table.Column<string>(type: "text", nullable: true),
+                    TwoFactorExpiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ResetToken = table.Column<string>(type: "text", nullable: true),
+                    ResetTokenExpiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    SecurityPinHash = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -200,10 +201,10 @@ namespace DigitalGradebook.Repository.Migrations
                 name: "TeacherProfiles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Subject = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    Subject = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -247,9 +248,6 @@ namespace DigitalGradebook.Repository.Migrations
                 table: "Users",
                 column: "StudentId");
 
-            migrationBuilder.Sql("ALTER TABLE \"Permissions\" ALTER COLUMN \"Id\" ADD GENERATED ALWAYS AS IDENTITY;");
-            migrationBuilder.Sql("ALTER TABLE \"Roles\" ALTER COLUMN \"Id\" ADD GENERATED ALWAYS AS IDENTITY;");
-            migrationBuilder.Sql("ALTER TABLE \"Users\" ALTER COLUMN \"Id\" ADD GENERATED ALWAYS AS IDENTITY;");
             migrationBuilder.Sql("INSERT INTO \"Permissions\" (\"Name\") VALUES ('FULL_PERMISSIONS');");
             migrationBuilder.Sql("INSERT INTO \"Permissions\" (\"Name\") VALUES ('RESTRICTED_PERMISSIONS');");
             migrationBuilder.Sql("INSERT INTO \"Roles\" (\"Name\") VALUES ('Teacher');");
