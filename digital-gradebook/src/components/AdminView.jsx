@@ -229,8 +229,15 @@ function CreateAccountTab() {
 function LogsTab() {
     const logs      = useAdminStore(s => s.logs);
     const fetchLogs = useAdminStore(s => s.fetchLogs);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => { fetchLogs(); }, []);
+
+    const handleRefresh = async () => {
+        setLoading(true);
+        await fetchLogs();
+        setLoading(false);
+    };
 
     const sorted = [...logs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 100);
 
@@ -240,7 +247,12 @@ function LogsTab() {
 
     return (
         <div style={card}>
-            <h3 style={{ margin: '0 0 14px', color: '#1b4332' }}>Audit Logs <span style={{ fontSize: 13, color: '#888', fontWeight: 400 }}>(last 100)</span></h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h3 style={{ margin: 0, color: '#1b4332' }}>Audit Logs <span style={{ fontSize: 13, color: '#888', fontWeight: 400 }}>(last 100)</span></h3>
+                <button onClick={handleRefresh} disabled={loading} style={{ ...btnYellow, opacity: loading ? 0.6 : 1 }}>
+                    {loading ? 'Loading…' : '🔄 Refresh'}
+                </button>
+            </div>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
