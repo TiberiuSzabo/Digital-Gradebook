@@ -65,12 +65,17 @@ export function useMasterView(students) {
 
         let totalScore = 0;
         students.forEach(s => {
-            // Folosim media numerică calculată de server pentru precizie maximă la media clasei
-            totalScore += s.averageNumeric || gradeValues[s.finalGrade] || 0;
+            totalScore += parseFloat(s.averageNumeric) || gradeValues[s.finalGrade] || 0;
         });
 
-        const avgScore = Math.round(totalScore / students.length);
-        classAverageStr = reverseGrade[avgScore] || '-';
+        const avgScore = totalScore / students.length;
+
+        if (avgScore >= 3.5) classAverageStr = 'FB';
+        else if (avgScore >= 2.5) classAverageStr = 'B';
+        else if (avgScore >= 1.5) classAverageStr = 'S';
+        else if (avgScore > 0) classAverageStr = 'I';
+        else classAverageStr = '-';
+
         classProgressStr = progressMap[classAverageStr] || '-';
 
         // --- FIX STATS: Numărăm folosind finalGrade ---
