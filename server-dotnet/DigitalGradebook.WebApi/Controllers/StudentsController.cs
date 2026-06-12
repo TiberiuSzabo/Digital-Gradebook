@@ -99,7 +99,8 @@ namespace DigitalGradebook.WebApi.Controllers
                 PhoneDad = input.PhoneDad,
                 ParentMom = input.ParentMom,
                 PhoneMom = input.PhoneMom,
-                Mentions = input.Mentions
+                Mentions = input.Mentions,
+                ClassYear = input.ClassYear
             };
 
             using var transaction = await _context.Database.BeginTransactionAsync();

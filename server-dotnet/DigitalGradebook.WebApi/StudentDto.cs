@@ -43,6 +43,7 @@ namespace DigitalGradebook.WebApi
         public string ParentMom { get; set; } = string.Empty;
         public string PhoneMom { get; set; } = string.Empty;
         public string Mentions { get; set; } = string.Empty;
+        public int ClassYear { get; set; } = 1;
     }
 
     public static class StudentMappingExtensions
