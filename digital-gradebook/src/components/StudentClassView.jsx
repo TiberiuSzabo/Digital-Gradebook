@@ -17,7 +17,7 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
     const classYear = myStudent?.classYear || 1;
 
     const classmates = (students || allStudents || []).filter(s =>
-        (s.classYear || s.class) === classYear
+        Number(s.classYear || s.class) === Number(classYear)
     );
 
     const fetchBadgesForStudent = useBadgeStore(state => state.fetchBadgesForStudent);
@@ -287,8 +287,7 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                 )}
                                 {teacherProfiles.map(t => (
                                     <option key={t.userId || t.id} value={t.userId || t.id}>
-                                        {t.userName || t.name || `Teacher ${t.userId || t.id}`}
-                                        {t.subject ? ` — ${t.subject}` : ''}
+                                        {t.username || t.userName || t.name || `Teacher ${t.userId || t.id}`}                                        {t.subject ? ` — ${t.subject}` : ''}
                                     </option>
                                 ))}
                             </select>
@@ -298,8 +297,7 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                 backgroundColor: '#dfffd6', borderRadius: 8, padding: '8px 12px',
                                 fontSize: 13, marginBottom: 14, color: '#2d6a4f',
                             }}>
-                                <strong>{selectedTeacherProfile.userName || selectedTeacherProfile.name}</strong>
-                                {selectedTeacherProfile.subject && ` · ${selectedTeacherProfile.subject}`}
+                                <strong>{selectedTeacherProfile.username || selectedTeacherProfile.userName || selectedTeacherProfile.name}</strong>                                {selectedTeacherProfile.subject && ` · ${selectedTeacherProfile.subject}`}
                             </div>
                         )}
                         <button
