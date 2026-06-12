@@ -13,7 +13,8 @@ function getInitials(student) {
 }
 
 function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
-    const classYear = currentUser?.classYear || currentUser?.class;
+    const myStudent = (students || allStudents || []).find(s => s.id === currentUser?.studentId);
+    const classYear = myStudent?.classYear || 1;
 
     const classmates = (students || allStudents || []).filter(s =>
         (s.classYear || s.class) === classYear

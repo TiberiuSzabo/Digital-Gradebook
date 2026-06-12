@@ -16,8 +16,17 @@ builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=gradebook.db",
-    b => b.MigrationsAssembly("DigitalGradebook.Repository")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=gradebook.db";
+    if (connectionString.StartsWith("postgresql") || connectionString.StartsWith("postgres"))
+    {
+        options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository"));
+    }
+    else
+    {
+        options.UseSqlite(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository"));
+    }
+});
 builder.Services.AddSingleton<GeneratorState>();
 builder.Services.AddHostedService<GeneratorWorker>();
 builder.Services.AddScoped<DigitalGradebook.Service.IAuditLoggerService, DigitalGradebook.Service.AuditLoggerService>();

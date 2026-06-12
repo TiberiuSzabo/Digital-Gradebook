@@ -147,11 +147,11 @@ const ChatModal = ({ isOpen, onClose, roomIdentifier, currentUser }) => {
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                            placeholder="Scrie un mesaj..."
+                            placeholder="Write a message..."
                             style={styles.input}
                             disabled={!connection}
                         />
-                        <button onClick={sendMessage} style={styles.sendBtn} disabled={!connection}>Trimite</button>
+                        <button onClick={sendMessage} style={styles.sendBtn} disabled={!connection}>Send</button>
                     </div>
                 </div>
             </div>
