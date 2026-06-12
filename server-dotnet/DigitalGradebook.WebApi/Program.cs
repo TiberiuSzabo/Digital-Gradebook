@@ -24,7 +24,8 @@ bool isPostgres = !string.IsNullOrEmpty(connectionString) &&
 if (isPostgres)
 {
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository")));
+        options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository"))
+               .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 }
 else
 {
