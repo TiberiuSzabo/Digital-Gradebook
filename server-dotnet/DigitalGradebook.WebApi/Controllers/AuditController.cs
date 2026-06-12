@@ -5,7 +5,7 @@ using DigitalGradebook.Repository;
 
 namespace DigitalGradebook.WebApi.Controllers
 {
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Roles = "Teacher, Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AuditController : ControllerBase
