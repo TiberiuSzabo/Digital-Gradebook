@@ -15,19 +15,22 @@ builder.Services.AddSingleton<DigitalGradebook.Repository.ChatRepository>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+bool isPostgres = !string.IsNullOrEmpty(connectionString) &&
+                  (connectionString.Contains("Host=") ||
+                   connectionString.Contains("host=") ||
+                   connectionString.StartsWith("postgres"));
+
+if (isPostgres)
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=gradebook.db";
-    if (connectionString.StartsWith("postgresql") || connectionString.StartsWith("postgres"))
-    {
-        var npgsqlConnection = ConvertPostgresUrl(connectionString);
-        options.UseNpgsql(npgsqlConnection, b => b.MigrationsAssembly("DigitalGradebook.Repository"));
-    }
-    else
-    {
-        options.UseSqlite(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository"));
-    }
-});
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString, b => b.MigrationsAssembly("DigitalGradebook.Repository")));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite("Data Source=gradebook.db", b => b.MigrationsAssembly("DigitalGradebook.Repository")));
+}
 builder.Services.AddSingleton<GeneratorState>();
 builder.Services.AddHostedService<GeneratorWorker>();
 builder.Services.AddScoped<DigitalGradebook.Service.IAuditLoggerService, DigitalGradebook.Service.AuditLoggerService>();
