@@ -123,7 +123,6 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
             </div>
 
             <div style={{ display: 'flex', gap: 16 }}>
-                {/* Left panel — classmate list */}
                 <div style={{
                     width: '40%', display: 'flex', flexDirection: 'column', gap: 10,
                     maxHeight: 'calc(100vh - 180px)', overflowY: 'auto',
@@ -144,9 +143,7 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                     borderRadius: 12,
                                     padding: '12px 14px',
                                     cursor: 'pointer',
-                                    boxShadow: isSelected
-                                        ? '0 2px 10px rgba(45,106,79,0.2)'
-                                        : '0 1px 4px rgba(0,0,0,0.08)',
+                                    boxShadow: isSelected ? '0 2px 10px rgba(45,106,79,0.2)' : '0 1px 4px rgba(0,0,0,0.08)',
                                     border: isSelected ? '2px solid #2d6a4f' : '2px solid transparent',
                                     display: 'flex', alignItems: 'center', gap: 12,
                                     transition: 'all 0.15s',
@@ -168,9 +165,7 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                         Grade: <strong>{s.finalGrade || '—'}</strong>
                                     </div>
                                 </div>
-                                <div style={{ fontSize: 16 }}>
-                                    {goodEmojis.join('')}{badEmojis.join('')}
-                                </div>
+                                <div style={{ fontSize: 16 }}>{goodEmojis.join('')}{badEmojis.join('')}</div>
                             </div>
                         );
                     })}
@@ -181,14 +176,9 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                     )}
                 </div>
 
-                {/* Right panel — detail */}
                 <div style={{
-                    flex: 1,
-                    backgroundColor: '#fff',
-                    borderRadius: 12,
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                    padding: '20px 22px',
-                    minHeight: 300,
+                    flex: 1, backgroundColor: '#fff', borderRadius: 12,
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)', padding: '20px 22px', minHeight: 300,
                 }}>
                     {!selectedClassmate ? (
                         <div style={{ color: '#aaa', fontSize: 14, textAlign: 'center', paddingTop: 60 }}>
@@ -196,7 +186,6 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                         </div>
                     ) : (() => {
                         const isMe = myProfile && String(selectedClassmate.id) === String(myProfile?.id);
-                        const badges = studentBadges[selectedClassmate.id] || [];
 
                         return (
                             <div>
@@ -219,20 +208,12 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                 </div>
 
                                 {/* Grades */}
-                                <div style={{
-                                    backgroundColor: '#dfffd6', borderRadius: 10,
-                                    padding: '12px 14px', marginBottom: 14,
-                                }}>
-                                    <div style={{ fontWeight: 700, fontSize: 13, color: '#1b4332', marginBottom: 8 }}>
-                                        Grades
-                                    </div>
+                                <div style={{ backgroundColor: '#dfffd6', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
+                                    <div style={{ fontWeight: 700, fontSize: 13, color: '#1b4332', marginBottom: 8 }}>Grades</div>
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                                         {selectedClassmate.subjects && selectedClassmate.subjects.length > 0 ? (
                                             selectedClassmate.subjects.map((sub, i) => (
-                                                <div key={i} style={{
-                                                    backgroundColor: '#fff', borderRadius: 8, padding: '5px 10px',
-                                                    fontSize: 13, boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
-                                                }}>
+                                                <div key={i} style={{ backgroundColor: '#fff', borderRadius: 8, padding: '5px 10px', fontSize: 13, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
                                                     <span style={{ color: '#555' }}>{sub.name}:</span>{' '}
                                                     <strong style={{ color: GRADE_COLOR[sub.grades?.[sub.grades.length - 1]] || '#333' }}>
                                                         {sub.grades?.join(', ') || '—'}
@@ -250,37 +231,29 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                     </div>
                                 </div>
 
-                                {/* Badges — read-only */}
+                                {/* Badges */}
                                 <div style={{ marginBottom: 14 }}>
-                                    <div style={{ fontWeight: 700, fontSize: 13, color: '#1b4332', marginBottom: 8 }}>
-                                        Badges
-                                    </div>
+                                    <div style={{ fontWeight: 700, fontSize: 13, color: '#1b4332', marginBottom: 8 }}>Badges</div>
                                     <BadgePanel studentId={selectedClassmate.id} isTeacher={false} classYear={classYear} />
                                 </div>
 
-                                {/* My profile extras */}
+                                {/* My profile extras — only shown when viewing own profile */}
                                 {isMe && (
-                                    <div style={{
-                                        borderTop: '1px solid #eee', paddingTop: 14, marginTop: 4,
-                                    }}>
-                                        <div style={{ fontWeight: 700, fontSize: 13, color: '#1b4332', marginBottom: 10 }}>
-                                            My Profile
-                                        </div>
+                                    <div style={{ borderTop: '1px solid #eee', paddingTop: 14, marginTop: 4 }}>
+                                        <div style={{ fontWeight: 700, fontSize: 13, color: '#1b4332', marginBottom: 10 }}>My Profile</div>
                                         <BadgePanel studentId={selectedClassmate.id} isTeacher={false} classYear={classYear} />
                                         <button
                                             onClick={handleContactTeacher}
                                             style={{
-                                                marginTop: 12,
-                                                padding: '8px 20px', backgroundColor: '#ffda47', color: '#333',
+                                                marginTop: 12, padding: '8px 20px', backgroundColor: '#ffda47', color: '#333',
                                                 border: 'none', borderRadius: 10, cursor: 'pointer',
-                                                fontWeight: 700, fontSize: 13,
-                                                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                                                fontWeight: 700, fontSize: 13, boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
                                             }}
                                         >
                                             📩 Contact Teacher
                                         </button>
 
-                                        {/* Buddy suggestion */}
+                                        {/* BLOC 1: Eu am probleme, mi se sugereaza un buddy */}
                                         {(() => {
                                             const myProblem = problems.find(p => String(p.student?.id) === String(myProfile?.id));
                                             if (!myProblem) return null;
@@ -322,6 +295,45 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                                     ) : (
                                                         <div style={{ fontSize: 13, color: '#888' }}>No buddy found yet.</div>
                                                     )}
+                                                </div>
+                                            );
+                                        })()}
+
+                                        {/* BLOC 2: Eu sunt buddy pentru altcineva */}
+                                        {(() => {
+                                            const isBuddyFor = problems.find(p => String(p.suggestedBuddy?.id) === String(myProfile?.id));
+                                            if (!isBuddyFor) return null;
+                                            return (
+                                                <div style={{
+                                                    marginTop: 14, padding: '12px 14px',
+                                                    backgroundColor: '#e8f5e9', borderRadius: 10,
+                                                    borderLeft: '4px solid #2d6a4f',
+                                                }}>
+                                                    <div style={{ fontWeight: 700, fontSize: 13, color: '#2d6a4f', marginBottom: 6 }}>
+                                                        ⭐ You are a Buddy!
+                                                    </div>
+                                                    <div style={{ fontSize: 13, color: '#555' }}>
+                                                        <strong style={{ color: '#1b4332' }}>
+                                                            {isBuddyFor.student.firstName} {isBuddyFor.student.lastName}
+                                                        </strong>
+                                                        {' '}needs your help!
+                                                        <button
+                                                            onClick={() => {
+                                                                const myId = myProfile.id;
+                                                                const otherId = isBuddyFor.student.id;
+                                                                setBuddyChatRoom(`buddy-${Math.min(myId, otherId)}-${Math.max(myId, otherId)}`);
+                                                                setIsBuddyChatOpen(true);
+                                                            }}
+                                                            style={{
+                                                                marginTop: 10, display: 'block', padding: '7px 16px',
+                                                                backgroundColor: '#2d6a4f', color: '#fff',
+                                                                border: 'none', borderRadius: 8, cursor: 'pointer',
+                                                                fontWeight: 700, fontSize: 13,
+                                                            }}
+                                                        >
+                                                            💬 Open Buddy Chat
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             );
                                         })()}
@@ -367,20 +379,13 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                             >✕</button>
                         </div>
                         <div style={{ marginBottom: 12 }}>
-                            <label style={{ fontSize: 13, color: '#555', display: 'block', marginBottom: 6 }}>
-                                Select Teacher
-                            </label>
+                            <label style={{ fontSize: 13, color: '#555', display: 'block', marginBottom: 6 }}>Select Teacher</label>
                             <select
                                 value={selectedTeacherId || ''}
                                 onChange={e => setSelectedTeacherId(e.target.value)}
-                                style={{
-                                    width: '100%', padding: '8px 10px', borderRadius: 8,
-                                    border: '1px solid #ccc', fontSize: 14,
-                                }}
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ccc', fontSize: 14 }}
                             >
-                                {teacherProfiles.length === 0 && (
-                                    <option value="">No teachers available</option>
-                                )}
+                                {teacherProfiles.length === 0 && <option value="">No teachers available</option>}
                                 {teacherProfiles.map(t => (
                                     <option key={t.userId || t.id} value={t.userId || t.id}>
                                         {t.username || t.userName || t.name || `Teacher ${t.userId || t.id}`}
@@ -390,10 +395,7 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                             </select>
                         </div>
                         {selectedTeacherProfile && (
-                            <div style={{
-                                backgroundColor: '#dfffd6', borderRadius: 8, padding: '8px 12px',
-                                fontSize: 13, marginBottom: 14, color: '#2d6a4f',
-                            }}>
+                            <div style={{ backgroundColor: '#dfffd6', borderRadius: 8, padding: '8px 12px', fontSize: 13, marginBottom: 14, color: '#2d6a4f' }}>
                                 <strong>{selectedTeacherProfile.username || selectedTeacherProfile.userName || selectedTeacherProfile.name}</strong>
                                 {selectedTeacherProfile.subject && ` · ${selectedTeacherProfile.subject}`}
                             </div>
