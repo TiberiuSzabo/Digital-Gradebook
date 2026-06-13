@@ -17,6 +17,11 @@ const btnYellow = {
     border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 12,
 };
 
+const btnSaveRole = {
+    padding: '5px 12px', backgroundColor: '#52b788', color: '#fff',
+    border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 12,
+};
+
 const btnRed = {
     padding: '5px 12px', backgroundColor: '#ff4d4d', color: '#fff',
     border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 12,
@@ -75,7 +80,7 @@ function UsersTab() {
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
-                        <tr style={{ backgroundColor: '#dfffd6' }}>
+                        <tr style={{ backgroundColor: '#ffe8a3' }}>
                             {['ID', 'Username', 'Role', 'Student ID', 'Actions'].map(h => (
                                 <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#1b4332', fontWeight: 700 }}>
                                     {h}
@@ -88,7 +93,7 @@ function UsersTab() {
                             <tr><td colSpan={5} style={{ padding: 20, color: '#aaa', textAlign: 'center' }}>No users found.</td></tr>
                         )}
                         {users.map((u, i) => (
-                            <tr key={u.id} style={{ backgroundColor: i % 2 === 0 ? '#fafafa' : '#fff', borderBottom: '1px solid #eee' }}>
+                            <tr key={u.id} style={{ backgroundColor: i % 2 === 0 ? '#fffbef' : '#fff', borderBottom: '1px solid #eee' }}>
                                 <td style={{ padding: '7px 12px', color: '#888' }}>{u.id}</td>
                                 <td style={{ padding: '7px 12px', fontWeight: 600 }}>{u.username}</td>
                                 <td style={{ padding: '7px 12px' }}>{u.role}</td>
@@ -106,7 +111,7 @@ function UsersTab() {
                                             onClick={() => handleSaveRole(u.id)}
                                             disabled={!pendingRoles[u.id]}
                                             style={{
-                                                ...btnYellow,
+                                                ...btnSaveRole,
                                                 opacity: pendingRoles[u.id] ? 1 : 0.4,
                                                 cursor: pendingRoles[u.id] ? 'pointer' : 'default',
                                             }}
@@ -256,7 +261,7 @@ function LogsTab() {
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
-                        <tr style={{ backgroundColor: '#2d6a4f' }}>
+                        <tr style={{ backgroundColor: '#ffda47' }}>
                             {['Timestamp', 'User ID', 'Role', 'Action'].map(h => (
                                 <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#1b4332', fontWeight: 700 }}>
                                     {h}
@@ -269,7 +274,7 @@ function LogsTab() {
                             <tr><td colSpan={4} style={{ padding: 20, color: '#aaa', textAlign: 'center' }}>No logs available.</td></tr>
                         )}
                         {sorted.map((log, i) => (
-                            <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#fff9e6' : '#ffda47', borderBottom: '1px solid #eee' }}>
+                            <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#fafafa' : '#fff', borderBottom: '1px solid #eee' }}>
                                 <td style={{ padding: '7px 12px', color: '#888', whiteSpace: 'nowrap' }}>{formatTs(log.timestamp)}</td>
                                 <td style={{ padding: '7px 12px' }}>{log.userId}</td>
                                 <td style={{ padding: '7px 12px' }}>{log.role}</td>
