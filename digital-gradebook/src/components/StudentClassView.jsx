@@ -59,6 +59,19 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
     const [selectedTeacherId, setSelectedTeacherId] = useState(null);
     const [isTeacherChatOpen, setIsTeacherChatOpen] = useState(false);
 
+    const [problems, setProblems] = useState([]);
+
+    useEffect(() => {
+        if (!classYear) return;
+        const token = JSON.parse(localStorage.getItem('auth-storage'))?.state?.token;
+        fetch(`https://digital-gradebook.onrender.com/api/Students/problems/${classYear}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(r => r.json())
+            .then(data => setProblems(data))
+            .catch(console.error);
+    }, [classYear]);
+
     useEffect(() => {
         classmates.forEach(s => fetchBadgesForStudent(s.id));
     }, [classmates.length]);
@@ -265,6 +278,34 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                         >
                                             📩 Contact Teacher
                                         </button>
+                                        {(() => {
+                                            const myProblem = problems.find(p => String(p.student?.id) === String(myProfile?.id));
+                                            if (!myProblem) return null;
+                                            return (
+                                                <div style={{
+                                                    marginTop: 14, padding: '12px 14px',
+                                                    backgroundColor: '#fff8e1', borderRadius: 10,
+                                                    borderLeft: '4px solid #ffda47',
+                                                }}>
+                                                    <div style={{ fontWeight: 700, fontSize: 13, color: '#b8860b', marginBottom: 6 }}>
+                                                        🤝 Suggested Buddy
+                                                    </div>
+                                                    {myProblem.suggestedBuddy ? (
+                                                        <div style={{ fontSize: 13, color: '#555' }}>
+                                                            <strong style={{ color: '#1b4332' }}>
+                                                                {myProblem.suggestedBuddy.firstName} {myProblem.suggestedBuddy.lastName}
+                                                            </strong>
+                                                            {' '}can help you improve!
+                                                            <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                                                                Problem badges: {myProblem.problemBadges?.join(', ')}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div style={{ fontSize: 13, color: '#888' }}>No buddy found yet.</div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 )}
                             </div>

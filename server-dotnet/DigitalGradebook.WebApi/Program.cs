@@ -63,7 +63,8 @@ builder.Services.AddAuthentication(options =>
         {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/generatorHub")))
             {
                 context.Token = accessToken;
             }
@@ -141,6 +142,6 @@ app.UseAuthorization();
 
 app.MapControllers().RequireCors("AllowReact");
 app.MapHub<GeneratorHub>("/generatorHub");
-app.MapHub<DigitalGradebook.WebApi.Hubs.ChatHub>("/chatHub");
+app.MapHub<DigitalGradebook.WebApi.Hubs.ChatHub>("/chatHub").RequireCors("AllowReact");
 
 app.Run();
