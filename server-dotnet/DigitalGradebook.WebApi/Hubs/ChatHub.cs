@@ -15,9 +15,28 @@ namespace DigitalGradebook.WebApi.Hubs
             _chatRepository = chatRepository;
         }
 
+        public override async Task OnConnectedAsync()
+        {
+            try
+            {
+                await base.OnConnectedAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[ChatHub] OnConnectedAsync error: {ex.Message}");
+            }
+        }
+
         public async Task JoinRoom(string roomId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+            try
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[ChatHub] JoinRoom error for room {roomId}: {ex.Message}");
+            }
         }
 
         public async Task SendMessage(string roomId, string senderName, string text, string visibility)

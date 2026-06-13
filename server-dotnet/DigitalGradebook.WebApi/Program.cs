@@ -139,7 +139,7 @@ app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireCors("AllowReact");
 app.MapHub<GeneratorHub>("/generatorHub");
 app.MapHub<DigitalGradebook.WebApi.Hubs.ChatHub>("/chatHub");
 
