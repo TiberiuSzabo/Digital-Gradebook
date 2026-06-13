@@ -58,7 +58,8 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
     const [isContactTeacherOpen, setIsContactTeacherOpen] = useState(false);
     const [selectedTeacherId, setSelectedTeacherId] = useState(null);
     const [isTeacherChatOpen, setIsTeacherChatOpen] = useState(false);
-
+    const [isBuddyChatOpen, setIsBuddyChatOpen] = useState(false);
+    const [buddyChatRoom, setBuddyChatRoom] = useState(null);
     const [problems, setProblems] = useState([]);
 
     useEffect(() => {
@@ -244,8 +245,8 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                     </div>
                                     <div style={{ marginTop: 8, fontSize: 13 }}>
                                         Overall: <strong style={{ color: GRADE_COLOR[selectedClassmate.finalGrade] || '#333' }}>
-                                            {selectedClassmate.finalGrade || '—'}
-                                        </strong>
+                                        {selectedClassmate.finalGrade || '—'}
+                                    </strong>
                                     </div>
                                 </div>
 
@@ -278,6 +279,8 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                         >
                                             📩 Contact Teacher
                                         </button>
+
+                                        {/* Buddy suggestion */}
                                         {(() => {
                                             const myProblem = problems.find(p => String(p.student?.id) === String(myProfile?.id));
                                             if (!myProblem) return null;
@@ -299,6 +302,22 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                                             <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
                                                                 Problem badges: {myProblem.problemBadges?.join(', ')}
                                                             </div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const myId = myProfile.id;
+                                                                    const buddyId = myProblem.suggestedBuddy.id;
+                                                                    setBuddyChatRoom(`buddy-${Math.min(myId, buddyId)}-${Math.max(myId, buddyId)}`);
+                                                                    setIsBuddyChatOpen(true);
+                                                                }}
+                                                                style={{
+                                                                    marginTop: 10, padding: '7px 16px',
+                                                                    backgroundColor: '#2d6a4f', color: '#fff',
+                                                                    border: 'none', borderRadius: 8, cursor: 'pointer',
+                                                                    fontWeight: 700, fontSize: 13,
+                                                                }}
+                                                            >
+                                                                💬 Chat with Buddy
+                                                            </button>
                                                         </div>
                                                     ) : (
                                                         <div style={{ fontSize: 13, color: '#888' }}>No buddy found yet.</div>
@@ -319,6 +338,14 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                 isOpen={isClassChatOpen}
                 onClose={() => setIsClassChatOpen(false)}
                 roomIdentifier={`class-${classYear}`}
+                currentUser={currentUser}
+            />
+
+            {/* Buddy chat */}
+            <ChatModal
+                isOpen={isBuddyChatOpen}
+                onClose={() => setIsBuddyChatOpen(false)}
+                roomIdentifier={buddyChatRoom}
                 currentUser={currentUser}
             />
 
@@ -356,7 +383,8 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                 )}
                                 {teacherProfiles.map(t => (
                                     <option key={t.userId || t.id} value={t.userId || t.id}>
-                                        {t.username || t.userName || t.name || `Teacher ${t.userId || t.id}`}                                        {t.subject ? ` — ${t.subject}` : ''}
+                                        {t.username || t.userName || t.name || `Teacher ${t.userId || t.id}`}
+                                        {t.subject ? ` — ${t.subject}` : ''}
                                     </option>
                                 ))}
                             </select>
@@ -366,7 +394,8 @@ function StudentClassView({ currentUser, themeStyles, students, allStudents }) {
                                 backgroundColor: '#dfffd6', borderRadius: 8, padding: '8px 12px',
                                 fontSize: 13, marginBottom: 14, color: '#2d6a4f',
                             }}>
-                                <strong>{selectedTeacherProfile.username || selectedTeacherProfile.userName || selectedTeacherProfile.name}</strong>                                {selectedTeacherProfile.subject && ` · ${selectedTeacherProfile.subject}`}
+                                <strong>{selectedTeacherProfile.username || selectedTeacherProfile.userName || selectedTeacherProfile.name}</strong>
+                                {selectedTeacherProfile.subject && ` · ${selectedTeacherProfile.subject}`}
                             </div>
                         )}
                         <button
